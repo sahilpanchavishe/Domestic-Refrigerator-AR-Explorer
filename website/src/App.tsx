@@ -1,20 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Box, 
-  Layers, 
-  Smartphone, 
-  RotateCw, 
-  Sliders, 
-  Eye, 
-  BookOpen, 
+  RotateCcw, 
+  Plus, 
+  Minus, 
+  Tag, 
   Activity, 
-  Info, 
-  ChevronRight, 
-  ChevronLeft, 
+  Camera, 
+  VideoOff, 
+  Play, 
+  Pause, 
+  SkipBack, 
+  SkipForward, 
+  Layers, 
+  DoorClosed, 
+  DoorOpen, 
+  Smartphone, 
+  FileText, 
+  Type, 
   X, 
-  Download, 
-  Compass,
-  FileText
+  ChevronRight, 
+  ChevronLeft,
+  CheckCircle,
+  GraduationCap,
+  Users,
+  BookOpen,
+  Info
 } from 'lucide-react';
 import { ThreeRefrigeratorViewer } from './components/ThreeRefrigeratorViewer';
 import { ARViewModal } from './components/ARViewModal';
@@ -24,369 +34,521 @@ import { AboutModal } from './components/AboutModal';
 import componentsData from './data/components.json';
 
 export const App: React.FC = () => {
+  // Navigation tabs: '3d' | 'components' | 'cycle' | 'exploded' | 'project' | 'references'
+  const [activeTab, setActiveTab] = useState<string>('3d');
+  
+  // Selected component
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>('01_Compressor');
+  
+  // Viewer controls
   const [isDoorOpen, setIsDoorOpen] = useState<boolean>(false);
+  const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [showFlow, setShowFlow] = useState<boolean>(true);
+  const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [explodeFactor, setExplodeFactor] = useState<number>(0);
-  const [isIsolateMode, setIsIsolateMode] = useState<boolean>(false);
-  const [isCycleFlowActive, setIsCycleFlowActive] = useState<boolean>(false);
-  const [cameraPreset, setCameraPreset] = useState<string>('reset');
+  const [isPlayingCycle, setIsPlayingCycle] = useState<boolean>(false);
+  const [cycleStep, setCycleStep] = useState<number>(0);
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [fontSizeScale, setFontSizeScale] = useState<number>(1); // 1 = Normal, 1.15 = Large
 
   // Modals
   const [isAROpen, setIsAROpen] = useState<boolean>(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
   const [isCycleOpen, setIsCycleOpen] = useState<boolean>(false);
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isReferencesOpen, setIsReferencesOpen] = useState<boolean>(false);
+
+  // Cycle sequence for "Play cycle"
+  const cycleComponents = ['01_Compressor', '02_Condenser_Coil', '03_Capillary_Tube', '04_Evaporator_Unit'];
+
+  useEffect(() => {
+    let timer: any;
+    if (isPlayingCycle) {
+      timer = setInterval(() => {
+        setCycleStep((prev) => {
+          const next = (prev + 1) % cycleComponents.length;
+          setSelectedComponentId(cycleComponents[next]);
+          return next;
+        });
+      }, 3500);
+    }
+    return () => clearInterval(timer);
+  }, [isPlayingCycle]);
+
+  // Handle Tab changes
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'components') {
+      setIsLibraryOpen(true);
+    } else if (tab === 'cycle') {
+      setIsCycleOpen(true);
+    } else if (tab === 'exploded') {
+      setExplodeFactor(0.65);
+      setActiveTab('3d');
+    } else if (tab === 'project') {
+      setIsAboutOpen(true);
+    } else if (tab === 'references') {
+      setIsReferencesOpen(true);
+    } else if (tab === 'home' || tab === '3d') {
+      setExplodeFactor(0);
+      setActiveTab('3d');
+    }
+  };
 
   const selectedComponent = componentsData.find((c) => c.id === selectedComponentId);
   const currentIndex = componentsData.findIndex((c) => c.id === selectedComponentId);
 
-  const handleNextComponent = () => {
+  const handleNextPart = () => {
     const nextIdx = (currentIndex + 1) % componentsData.length;
     setSelectedComponentId(componentsData[nextIdx].id);
   };
 
-  const handlePrevComponent = () => {
+  const handlePrevPart = () => {
     const prevIdx = (currentIndex - 1 + componentsData.length) % componentsData.length;
     setSelectedComponentId(componentsData[prevIdx].id);
   };
 
+  // Font size toggle
+  const toggleFontSize = () => {
+    setFontSizeScale((prev) => (prev === 1 ? 1.15 : 1));
+  };
+
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#070d1e] text-slate-100 overflow-hidden font-sans">
-      {/* Top Header Engineering Title Block */}
-      <header className="flex flex-wrap items-center justify-between px-4 py-2.5 bg-[#091129] border-b border-[#1e2e5c] z-20">
+    <div 
+      className="flex flex-col h-screen w-screen bg-[#f8fafc] text-[#0f172a] overflow-hidden font-sans select-none"
+      style={{ fontSize: `${fontSizeScale * 14}px` }}
+    >
+      {/* ============================================================== */}
+      {/* 1. TOP NAVBAR (Matches VCR AR Explorer Reference Header)       */}
+      {/* ============================================================== */}
+      <header className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-slate-200 z-30 shadow-sm">
+        {/* Left: Logo Badge */}
         <div className="flex items-center gap-3">
-          <div className="bg-[#00e5ff]/10 border border-[#00e5ff]/40 p-1.5 rounded text-[#00e5ff]">
-            <Box className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="badge-tech badge-cyan text-[10px]">DRG. NO. REF-001</span>
-              <span className="text-[10px] font-mono text-slate-400">SHEET 1 / 4 · SECTION A</span>
+          <div 
+            onClick={() => handleTabClick('3d')}
+            className="flex items-center gap-2 cursor-pointer group"
+          >
+            <div className="bg-[#070d1e] text-white px-2.5 py-1 rounded font-mono font-bold text-sm tracking-wider flex items-center">
+              <span className="text-[#00e5ff]">REF</span>
+              <span className="text-[#f97316]">/AR</span>
             </div>
-            <h1 className="font-mono text-sm md:text-base font-bold text-white tracking-wide">
-              DOMESTIC REFRIGERATOR AR EXPLORER
-            </h1>
-            <p className="text-[10px] font-mono text-slate-400 hidden sm:block">
-              Department of Robotics and AI · COEP Technological University, Pune
-            </p>
+            <span className="font-bold text-slate-800 text-sm tracking-tight group-hover:text-[#0284c7] transition">
+              AR Explorer
+            </span>
           </div>
         </div>
 
-        {/* Action Header Buttons */}
-        <div className="flex items-center gap-2 mt-2 sm:mt-0">
+        {/* Center: Navigation Items */}
+        <nav className="hidden md:flex items-center gap-1">
+          {[
+            { id: 'home', label: 'Home' },
+            { id: '3d', label: '3D Explorer' },
+            { id: 'components', label: 'Components' },
+            { id: 'cycle', label: 'Cycle' },
+            { id: 'exploded', label: 'Exploded' },
+            { id: 'project', label: 'Project' },
+            { id: 'references', label: 'References' }
+          ].map((tab) => {
+            const isActive = activeTab === tab.id || (tab.id === '3d' && activeTab === '3d');
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${
+                  isActive
+                    ? 'bg-[#0f172a] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Right: Actions (AR, PDF, Font Scaling) */}
+        <div className="flex items-center gap-2">
+          {/* AR Button */}
           <button
             onClick={() => setIsAROpen(true)}
-            className="btn-primary text-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[#0284c7] text-[#0284c7] hover:bg-[#0284c7]/10 font-mono text-xs font-bold transition shadow-sm"
+            title="Launch WebAR / Mobile AR"
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>AR VIEW</span>
+            <span>AR</span>
           </button>
 
-          <button
-            onClick={() => setIsCycleOpen(true)}
-            className="btn-secondary text-xs"
-          >
-            <Activity className="w-3.5 h-3.5 text-[#00e5ff]" />
-            <span className="hidden md:inline">VCR CYCLE</span>
-          </button>
-
-          <button
-            onClick={() => setIsLibraryOpen(true)}
-            className="btn-secondary text-xs"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-[#fb923c]" />
-            <span className="hidden md:inline">PARTS SPEC</span>
-          </button>
-
-          <button
-            onClick={() => setIsAboutOpen(true)}
-            className="btn-secondary text-xs"
-          >
-            <Info className="w-3.5 h-3.5 text-slate-300" />
-            <span className="hidden lg:inline">CREDITS</span>
-          </button>
-
+          {/* PDF Brochure Download */}
           <a
             href="./Domestic-Refrigerator-AR-Explorer-Technical-Poster.pdf"
             download
-            className="btn-accent-copper text-xs flex items-center gap-1.5"
-            title="Download Four-Page A3 Poster PDF"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:text-slate-900 hover:border-slate-400 hover:bg-slate-50 font-mono text-xs font-semibold transition shadow-sm"
+            title="Download Technical Poster (PDF)"
           >
-            <FileText className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">POSTER (PDF)</span>
+            <span>PDF</span>
           </a>
+
+          {/* Font Size Adjuster */}
+          <button
+            onClick={toggleFontSize}
+            className="p-1.5 rounded border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition text-xs font-mono font-bold"
+            title="Toggle Text Size"
+          >
+            A±
+          </button>
         </div>
       </header>
 
-      {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        {/* Left: 3D Viewport Area */}
-        <div className="flex-1 flex flex-col relative h-[60vh] lg:h-full bg-grid-pattern overflow-hidden">
-          {/* Top Controls Toolbar */}
-          <div className="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-            {/* Camera View Presets */}
-            <div className="flex items-center gap-1.5 bg-[#091129]/90 backdrop-blur-md p-1 rounded-md border border-[#1e2e5c] pointer-events-auto shadow-lg">
-              <span className="text-[10px] font-mono text-slate-400 px-2 uppercase font-semibold">
-                Camera:
-              </span>
-              {[
-                { id: 'reset', label: 'Iso' },
-                { id: 'front', label: 'Front' },
-                { id: 'rear', label: 'Rear' },
-                { id: 'interior', label: 'Interior' },
-                { id: 'compressor', label: 'Compressor' }
-              ].map((p) => (
+      {/* ============================================================== */}
+      {/* 2. MAIN WORKSPACE LAYOUT (Left Sidebar + Center 3D Viewport)    */}
+      {/* ============================================================== */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        {/* ------------------------------------------------------------ */}
+        {/* LEFT SIDEBAR: 3D Explorer & Numbered Components List         */}
+        {/* ------------------------------------------------------------ */}
+        <aside className="w-full md:w-[320px] lg:w-[340px] bg-white border-r border-slate-200 flex flex-col z-10 shrink-0 shadow-sm overflow-hidden">
+          {/* Sidebar Top Title */}
+          <div className="p-4 border-b border-slate-100">
+            <h2 className="font-bold text-base text-slate-900 tracking-tight">
+              3D Explorer
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              Tap a part in 3D or pick it here. Numbers match the callouts.
+            </p>
+          </div>
+
+          {/* Numbered Components List */}
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {componentsData.map((part) => {
+              const isSelected = selectedComponentId === part.id;
+              const isIllustrative = part.id === '05_Filter_Drier' || part.id === '13_Thermostat_Electrical';
+              
+              return (
                 <button
-                  key={p.id}
-                  onClick={() => setCameraPreset(p.id)}
-                  className={`px-2.5 py-1 text-[11px] font-mono rounded transition ${
-                    cameraPreset === p.id
-                      ? 'bg-[#00e5ff] text-slate-950 font-bold'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  key={part.id}
+                  onClick={() => setSelectedComponentId(part.id)}
+                  className={`w-full flex items-start gap-2.5 px-3 py-2 rounded-lg text-left transition group ${
+                    isSelected
+                      ? 'bg-slate-100 text-[#0f172a] shadow-inner'
+                      : 'hover:bg-slate-50 text-slate-700'
                   }`}
                 >
-                  {p.label}
+                  {/* Number Circle Badge */}
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold font-mono transition border ${
+                    isSelected
+                      ? 'bg-[#0f172a] text-white border-[#0f172a]'
+                      : 'bg-white text-slate-800 border-slate-300 group-hover:border-slate-400'
+                  }`}>
+                    {part.number}
+                  </div>
+
+                  {/* Component Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs tracking-tight truncate ${
+                        isSelected ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'
+                      }`}>
+                        {part.name}
+                      </span>
+                    </div>
+                    {isIllustrative && (
+                      <span className="text-[10px] text-[#ea580c] italic font-sans block">
+                        illustrative
+                      </span>
+                    )}
+                  </div>
                 </button>
-              ))}
+              );
+            })}
+          </div>
+
+          {/* REFRIGERANT STATE (CONCEPTUAL) LEGEND */}
+          <div className="p-3.5 border-t border-slate-200 bg-slate-50/70">
+            <h3 className="text-[10px] font-mono font-bold tracking-wider text-[#ea580c] uppercase mb-2">
+              REFRIGERANT STATE (CONCEPTUAL)
+            </h3>
+            <div className="space-y-1.5 text-[11px] text-slate-700 font-sans">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#dc2626] shrink-0" />
+                <span>High-pressure hot vapour</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#ea580c] shrink-0" />
+                <span>Condensing (vapour → liquid)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#f97316] shrink-0" />
+                <span>High-pressure liquid</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#38bdf8] shrink-0" />
+                <span>Low-pressure liquid–vapour mix</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#0284c7] shrink-0" />
+                <span>Evaporating (liquid → vapour)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm bg-[#1e40af] shrink-0" />
+                <span>Low-pressure vapour</span>
+              </div>
             </div>
+            <p className="text-[9.5px] text-slate-400 mt-2 leading-tight">
+              Flow arrows are a conceptual animation, not a CFD or thermodynamic simulation.
+            </p>
+          </div>
+        </aside>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-2 pointer-events-auto">
-              <button
-                onClick={() => setIsDoorOpen(!isDoorOpen)}
-                className={`px-3 py-1.5 rounded text-xs font-mono font-semibold transition flex items-center gap-1.5 border shadow-lg ${
-                  isDoorOpen
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
-                    : 'bg-[#0c1633]/90 text-[#00e5ff] border-[#00e5ff]/40 hover:bg-[#00e5ff]/20'
-                }`}
-              >
-                <RotateCw className="w-3.5 h-3.5" />
-                {isDoorOpen ? 'CLOSE DOORS' : 'OPEN DOORS'}
-              </button>
-
-              <button
-                onClick={() => setIsCycleFlowActive(!isCycleFlowActive)}
-                className={`px-3 py-1.5 rounded text-xs font-mono font-semibold transition border shadow-lg ${
-                  isCycleFlowActive
-                    ? 'bg-[#00e5ff] text-slate-950 border-[#00e5ff]'
-                    : 'bg-[#0c1633]/90 text-slate-300 border-[#1e2e5c] hover:border-[#00e5ff]/50'
-                }`}
-              >
-                CYCLE FLOW
-              </button>
+        {/* ------------------------------------------------------------ */}
+        {/* CENTER / RIGHT: 3D VIEWPORT WITH INTERACTIVE OVERLAYS        */}
+        {/* ------------------------------------------------------------ */}
+        <main className="flex-1 flex flex-col relative h-[50vh] md:h-full bg-[#f8fafc] overflow-hidden">
+          {/* Top Floating Instruction Banner */}
+          <div className="absolute top-3 left-0 right-0 z-20 flex justify-center pointer-events-none px-4">
+            <div className="bg-[#0f172a]/85 backdrop-blur-md text-white text-[11px] font-sans px-4 py-1.5 rounded-full shadow-lg pointer-events-auto flex items-center gap-1.5 border border-slate-700/50">
+              {isCameraActive ? (
+                <span>camera overlay · drag to turn · scroll / pinch to resize · tap a part · not surface-tracked — use AR for that</span>
+              ) : (
+                <>
+                  <span>Drag to rotate · scroll / pinch to zoom · right-drag or two fingers to pan · <strong>tap a part</strong> to learn about it.</span>
+                  <button 
+                    onClick={() => setIsAROpen(true)}
+                    className="text-[#00e5ff] font-semibold underline hover:text-[#38bdf8] ml-1"
+                  >
+                    Try it in AR →
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Three.js 3D Viewer Canvas */}
-          <div className="flex-1 w-full h-full">
+          {/* Three.js 3D Viewport Component */}
+          <div className="flex-1 w-full h-full relative">
             <ThreeRefrigeratorViewer
               selectedComponentId={selectedComponentId}
               onSelectComponent={setSelectedComponentId}
               isDoorOpen={isDoorOpen}
               onToggleDoor={setIsDoorOpen}
+              showLabels={showLabels}
+              showFlow={showFlow}
+              isCameraActive={isCameraActive}
               explodeFactor={explodeFactor}
-              isIsolateMode={isIsolateMode}
-              isCycleFlowActive={isCycleFlowActive}
-              cameraPreset={cameraPreset}
+              filterCategory={filterCategory}
             />
           </div>
 
-          {/* Bottom Floating Toolbar: Explode Slider & Ghosting */}
-          <div className="absolute bottom-3 right-3 z-10 flex items-center gap-3 bg-[#091129]/90 backdrop-blur-md px-3.5 py-2 rounded-lg border border-[#1e2e5c] shadow-xl">
-            <div className="flex items-center gap-2">
-              <Sliders className="w-3.5 h-3.5 text-[#00e5ff]" />
-              <span className="text-xs font-mono text-slate-300">Explode:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={explodeFactor}
-                onChange={(e) => setExplodeFactor(parseFloat(e.target.value))}
-                className="w-24 md:w-32 accent-[#00e5ff] cursor-pointer"
-              />
-              <span className="text-[11px] font-mono text-slate-400 w-8">
-                {Math.round(explodeFactor * 100)}%
-              </span>
-            </div>
-
-            <div className="h-4 w-px bg-slate-700" />
-
-            <label className="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isIsolateMode}
-                onChange={(e) => setIsIsolateMode(e.target.checked)}
-                className="accent-[#00e5ff]"
-              />
-              Isolate Part
-            </label>
-          </div>
-        </div>
-
-        {/* Right Sidebar: Component Information & Spec Panel */}
-        <aside className="w-full lg:w-[420px] bg-[#091129] border-t lg:border-t-0 lg:border-l border-[#1e2e5c] flex flex-col overflow-hidden z-10 shadow-2xl">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[#1e2e5c] bg-[#0c1633]">
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#00e5ff]" />
-              <h2 className="font-mono text-xs font-bold text-white tracking-wider uppercase">
-                Component Inspector
-              </h2>
-            </div>
-            {selectedComponent && (
+          {/* ---------------------------------------------------------- */}
+          {/* BOTTOM FLOATING TOOLBAR (Exact Match to VCR Reference)     */}
+          {/* ---------------------------------------------------------- */}
+          <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center pointer-events-none px-2">
+            <div className="bg-white/95 backdrop-blur-md border border-slate-300 px-3 py-2 rounded-2xl shadow-xl flex flex-wrap items-center gap-2 pointer-events-auto text-xs">
+              {/* Reset View */}
               <button
-                onClick={() => setSelectedComponentId(null)}
-                className="text-slate-400 hover:text-white text-xs font-mono flex items-center gap-1"
+                onClick={() => {
+                  setExplodeFactor(0);
+                  setIsDoorOpen(false);
+                  window.dispatchEvent(new CustomEvent('reset-camera'));
+                }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold transition"
+                title="Reset Camera"
               >
-                <X className="w-3.5 h-3.5" /> Deselect
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
               </button>
-            )}
-          </div>
 
-          {/* Component Details Card */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {selectedComponent ? (
-              <div className="space-y-4">
-                {/* Part ID Badge & Navigation */}
-                <div className="flex items-center justify-between">
-                  <span className="badge-tech badge-cyan">
-                    PART #{selectedComponent.number.toString().padStart(2, '0')}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={handlePrevComponent}
-                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                      title="Previous Component"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <span className="text-[11px] font-mono text-slate-400 px-1">
-                      {currentIndex + 1} / {componentsData.length}
-                    </span>
-                    <button
-                      onClick={handleNextComponent}
-                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                      title="Next Component"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Name & Short Description */}
-                <div>
-                  <h3 className="font-mono text-lg font-bold text-white">
-                    {selectedComponent.name}
-                  </h3>
-                  <p className="text-xs text-slate-300 font-sans mt-1 leading-relaxed">
-                    {selectedComponent.shortDescription}
-                  </p>
-                </div>
-
-                {/* Technical Attributes */}
-                <div className="space-y-2.5 text-xs">
-                  <div className="tech-panel p-3">
-                    <span className="text-[11px] font-mono text-[#00e5ff] font-semibold block mb-0.5">
-                      PRIMARY FUNCTION
-                    </span>
-                    <p className="text-slate-200 font-sans leading-relaxed">
-                      {selectedComponent.function}
-                    </p>
-                  </div>
-
-                  <div className="tech-panel p-3">
-                    <span className="text-[11px] font-mono text-[#fb923c] font-semibold block mb-0.5">
-                      WORKING PRINCIPLE
-                    </span>
-                    <p className="text-slate-200 font-sans leading-relaxed">
-                      {selectedComponent.workingPrinciple}
-                    </p>
-                  </div>
-
-                  <div className="tech-panel p-3">
-                    <span className="text-[11px] font-mono text-emerald-400 font-semibold block mb-0.5">
-                      CYCLE STAGE & ROLE
-                    </span>
-                    <p className="text-slate-200 font-sans leading-relaxed">
-                      {selectedComponent.cycleRole}
-                    </p>
-                  </div>
-
-                  <div className="tech-panel p-3">
-                    <span className="text-[11px] font-mono text-slate-400 font-semibold block mb-0.5">
-                      LOCATION IN APPLIANCE
-                    </span>
-                    <p className="text-slate-200 font-sans leading-relaxed">
-                      {selectedComponent.location}
-                    </p>
-                  </div>
-
-                  <div className="tech-panel p-3 bg-[#0c1633]/60 border-l-2 border-l-[#00e5ff]">
-                    <span className="text-[11px] font-mono text-[#00e5ff] font-semibold block mb-0.5">
-                      ENGINEERING RELEVANCE
-                    </span>
-                    <p className="text-slate-300 font-sans text-[11px] leading-relaxed">
-                      {selectedComponent.practicalRelevance}
-                    </p>
-                  </div>
-
-                  <div className="tech-panel p-3 bg-amber-500/5 border-l-2 border-l-amber-500">
-                    <span className="text-[11px] font-mono text-amber-400 font-semibold block mb-0.5">
-                      STUDENT NOTE
-                    </span>
-                    <p className="text-slate-300 font-sans text-[11px] leading-relaxed">
-                      {selectedComponent.studentNote}
-                    </p>
-                  </div>
-                </div>
+              {/* Zoom Buttons */}
+              <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('zoom-camera', { detail: -0.2 }))}
+                  className="px-2 py-1.5 hover:bg-slate-100 text-slate-700 font-bold transition border-r border-slate-200"
+                  title="Zoom In"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('zoom-camera', { detail: 0.2 }))}
+                  className="px-2 py-1.5 hover:bg-slate-100 text-slate-700 font-bold transition"
+                  title="Zoom Out"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center h-full py-8 text-slate-400">
-                <Box className="w-10 h-10 text-slate-500 mb-3 animate-pulse" />
-                <h4 className="font-mono text-sm font-semibold text-slate-300 mb-1">
-                  NO PART SELECTED
-                </h4>
-                <p className="text-xs max-w-xs font-sans text-slate-400 mb-5">
-                  Click on any component in the 3D refrigerator to highlight its geometry and inspect its thermodynamic role.
-                </p>
-                <div className="w-full space-y-1.5 text-left">
-                  <span className="text-[11px] font-mono text-slate-500 block uppercase">
-                    Quick Select:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {componentsData.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedComponentId(c.id)}
-                        className="px-2 py-1 rounded bg-[#0c1633] border border-[#1e2e5c] text-[11px] font-mono text-slate-300 hover:text-[#00e5ff] hover:border-[#00e5ff] transition"
-                      >
-                        #{c.number.toString().padStart(2, '0')} {c.name.split(' ')[0]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Footer Metadata */}
-          <div className="p-3 bg-[#0c1633] border-t border-[#1e2e5c] text-[11px] font-mono text-slate-400 flex items-center justify-between">
-            <span>COEP Tech University</span>
-            <span>Sahil P. & Megh S.</span>
+              {/* Toggle Doors */}
+              <button
+                onClick={() => setIsDoorOpen(!isDoorOpen)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-semibold transition ${
+                  isDoorOpen
+                    ? 'bg-[#ea580c] text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+                title="Open/Close Refrigerator Doors"
+              >
+                {isDoorOpen ? <DoorOpen className="w-3.5 h-3.5" /> : <DoorClosed className="w-3.5 h-3.5" />}
+                <span>Doors</span>
+              </button>
+
+              {/* Labels Toggle */}
+              <button
+                onClick={() => setShowLabels(!showLabels)}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+                  showLabels
+                    ? 'bg-[#0f172a] text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Labels
+              </button>
+
+              {/* Flow Toggle */}
+              <button
+                onClick={() => setShowFlow(!showFlow)}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+                  showFlow
+                    ? 'bg-[#0f172a] text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Flow
+              </button>
+
+              {/* Camera Background Toggle */}
+              <button
+                onClick={() => setIsCameraActive(!isCameraActive)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition ${
+                  isCameraActive
+                    ? 'bg-[#dc2626] text-white'
+                    : 'border border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+                title="Toggle Web Browser Camera Background Overlay"
+              >
+                {isCameraActive ? (
+                  <>
+                    <VideoOff className="w-3.5 h-3.5" />
+                    <span>Stop camera</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-[#dc2626] animate-pulse" />
+                    <Camera className="w-3.5 h-3.5 text-[#dc2626]" />
+                    <span>Camera</span>
+                  </>
+                )}
+              </button>
+
+              {/* Filter Dropdown */}
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold focus:outline-none text-xs"
+              >
+                <option value="all">Show all</option>
+                <option value="refrigeration">Refrigeration Loop</option>
+                <option value="cabinet">Cabinet & Doors</option>
+                <option value="electrical">Electrical & Fan</option>
+              </select>
+
+              {/* Explode Slider */}
+              <div className="flex items-center gap-1.5 px-2">
+                <span className="text-xs text-slate-600 font-semibold">Explode</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={explodeFactor}
+                  onChange={(e) => setExplodeFactor(parseFloat(e.target.value))}
+                  className="w-20 sm:w-28 accent-[#ea580c] cursor-pointer"
+                />
+              </div>
+
+              {/* Step Navigation & Play Cycle */}
+              <div className="flex items-center gap-1 border-l border-slate-200 pl-2">
+                <button
+                  onClick={handlePrevPart}
+                  className="p-1.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition"
+                  title="Previous Part"
+                >
+                  <SkipBack className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={() => setIsPlayingCycle(!isPlayingCycle)}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-semibold transition ${
+                    isPlayingCycle
+                      ? 'bg-[#ea580c] text-white'
+                      : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
+                  }`}
+                  title="Play 4-Stage Refrigeration Cycle"
+                >
+                  {isPlayingCycle ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{isPlayingCycle ? 'Pause' : 'Play cycle'}</span>
+                </button>
+
+                <button
+                  onClick={handleNextPart}
+                  className="p-1.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition"
+                  title="Next Part"
+                >
+                  <SkipForward className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
-        </aside>
+        </main>
       </div>
 
-      {/* Modals */}
+      {/* ============================================================== */}
+      {/* 3. MODALS (Components, Cycle, Project, References, AR)         */}
+      {/* ============================================================== */}
       <ARViewModal isOpen={isAROpen} onClose={() => setIsAROpen(false)} />
-      <ComponentLibraryModal
-        isOpen={isLibraryOpen}
-        onClose={() => setIsLibraryOpen(false)}
-        onSelectComponent={(id) => setSelectedComponentId(id)}
+      <ComponentLibraryModal 
+        isOpen={isLibraryOpen} 
+        onClose={() => setIsLibraryOpen(false)} 
+        onSelectComponent={(id) => {
+          setSelectedComponentId(id);
+          setIsLibraryOpen(false);
+          setActiveTab('3d');
+        }}
       />
       <CycleExplanationModal isOpen={isCycleOpen} onClose={() => setIsCycleOpen(false)} />
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+      {/* References Modal */}
+      {isReferencesOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-2xl bg-white border border-slate-300 rounded-xl overflow-hidden shadow-2xl p-6">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#0284c7]" />
+                <h3 className="font-bold text-base text-slate-900">Engineering References & Citations</h3>
+              </div>
+              <button 
+                onClick={() => setIsReferencesOpen(false)}
+                className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>• <strong>C. P. Arora</strong>, <em>Refrigeration and Air Conditioning</em>, 3rd ed., McGraw-Hill, 2008.</p>
+              <p>• <strong>W. F. Stoecker & J. W. Jones</strong>, <em>Refrigeration and Air Conditioning</em>, McGraw-Hill.</p>
+              <p>• <strong>Y. A. Çengel & M. A. Boles</strong>, <em>Thermodynamics: An Engineering Approach</em>, McGraw-Hill.</p>
+              <p>• <strong>ASHRAE Handbook</strong> — <em>Refrigeration (Systems and Equipment)</em>, ASHRAE, 2022.</p>
+              <p>• <strong>Software stack</strong>: three.js, Google &lt;model-viewer&gt;, React 19, Vite 6, TypeScript, ReportLab, Blender 5.2 Python API.</p>
+              <p>• <strong>Validation</strong>: Khronos Group glTF-Validator 2.0 (0 errors, 0 warnings).</p>
+            </div>
+            <div className="mt-6 pt-3 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setIsReferencesOpen(false)}
+                className="px-4 py-2 rounded bg-[#0f172a] text-white font-semibold text-xs hover:bg-slate-800"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
