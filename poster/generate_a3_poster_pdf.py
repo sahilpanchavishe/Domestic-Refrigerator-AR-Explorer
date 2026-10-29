@@ -1,13 +1,14 @@
 """
 Four-Page A3 Landscape Technical Poster Generator for Domestic Refrigerator AR Explorer
-Strictly adheres to the architectural structure and presentation quality of VCR-AR-Explorer.pdf.
+Strictly adheres to the architectural structure, visual elegance, and presentation quality of VCR-AR-Explorer.pdf.
 Authors: Sahil Panchavishe (612302040) & Megh Shidam (612302058)
-COEP Technological University, Pune - Department of Robotics and AI
+Department of Robotics and AI · COEP Technological University, Pune
+Guide: Dr. Shubhangi Deshmukh
 """
 
 import os
 from reportlab.lib.pagesizes import A3, landscape
-from reportlab.lib.units import mm, inch
+from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph
@@ -21,12 +22,32 @@ PDF_PATH = os.path.join(OUT_DIR, 'Domestic-Refrigerator-AR-Explorer-Technical-Po
 PAGE_W, PAGE_H = landscape(A3) # 1190.55 x 841.89 pt (420 x 297 mm)
 
 def draw_engineering_frame(c, sheet_num, total_sheets=4):
-    """Draws ISO/ANSI standard engineering border with coordinate ticks (1-8, A-F)."""
+    """Draws authentic engineering blueprint grid background and ISO coordinate frame."""
     margin = 15 * mm
     w = PAGE_W - 2 * margin
     h = PAGE_H - 2 * margin
     
-    # Outer thin border
+    # 1. Warm parchment / blueprint paper background
+    c.setFillColor(colors.HexColor('#f4f1ea'))
+    c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
+    
+    # 2. Subtle 10mm engineering graph grid
+    c.setStrokeColor(colors.HexColor('#e6e1d6'))
+    c.setLineWidth(0.3)
+    
+    # Vertical grid lines
+    gx = margin
+    while gx <= PAGE_W - margin:
+        c.line(gx, margin, gx, PAGE_H - margin)
+        gx += 10 * mm
+        
+    # Horizontal grid lines
+    gy = margin
+    while gy <= PAGE_H - margin:
+        c.line(margin, gy, PAGE_W - margin, gy)
+        gy += 10 * mm
+    
+    # 3. Outer dark engineering border
     c.setStrokeColor(colors.HexColor('#0f172a'))
     c.setLineWidth(1.2)
     c.rect(margin, margin, w, h)
@@ -35,7 +56,7 @@ def draw_engineering_frame(c, sheet_num, total_sheets=4):
     c.setLineWidth(0.6)
     c.rect(margin + 3 * mm, margin + 3 * mm, w - 6 * mm, h - 6 * mm)
     
-    # Coordinate ticks along top and bottom (1 to 8)
+    # 4. Coordinate ticks along top and bottom (1 to 8)
     c.setFont("Helvetica-Bold", 7)
     c.setFillColor(colors.HexColor('#475569'))
     step_x = (w - 6 * mm) / 8
@@ -60,7 +81,7 @@ def draw_top_header(c, sheet_num, section_code, section_name, main_title, subtit
     # 1. Top drawing number pill
     c.setFillColor(colors.HexColor('#0f172a'))
     c.rect(x0, y_top - 5 * mm, 65 * mm, 5 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7.5)
+    c.setFont("Helvetica-Bold", 7)
     c.setFillColor(colors.white)
     c.drawString(x0 + 2 * mm, y_top - 3.8 * mm, f"DRG. NO. REF-001 · SHEET {sheet_num} / 4")
     
@@ -98,31 +119,14 @@ def draw_top_header(c, sheet_num, section_code, section_name, main_title, subtit
     qr_img = os.path.join(RENDERS_DIR, 'qr_web_explorer.png')
     if os.path.exists(qr_img):
         c.drawImage(qr_img, qr_x, qr_y, width=qr_w, height=qr_w)
-    
-    c.setFont("Helvetica-Bold", 8.5)
+        
+    c.setFont("Helvetica-Bold", 7.5)
     c.setFillColor(colors.HexColor('#070d1e'))
-    c.drawString(qr_x + qr_w + 3 * mm, qr_y + 11 * mm, "Explore it in 3D")
-    c.setFont("Helvetica", 7)
+    c.drawString(qr_x + qr_w + 3 * mm, qr_y + qr_w - 3.5 * mm, "Explore it in 3D")
+    c.setFont("Helvetica", 6.5)
     c.setFillColor(colors.HexColor('#475569'))
-    c.drawString(qr_x + qr_w + 3 * mm, qr_y + 7 * mm, "Scan for interactive")
-    c.drawString(qr_x + qr_w + 3 * mm, qr_y + 3.5 * mm, "web explorer & AR view.")
-
-def draw_callout_badge(c, bx, by, number, leader_from=None):
-    """Draws a professional circular callout badge with high-contrast border and optional leader line."""
-    if leader_from:
-        c.setStrokeColor(colors.HexColor('#0284c7'))
-        c.setLineWidth(1.0)
-        c.line(leader_from[0], leader_from[1], bx, by)
-    
-    # Outer white ring for clarity over dark or light renders
-    c.setStrokeColor(colors.white)
-    c.setLineWidth(1.2)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.circle(bx, by, 3.4 * mm, fill=1, stroke=1)
-    
-    c.setFont("Helvetica-Bold", 7.2)
-    c.setFillColor(colors.white)
-    c.drawCentredString(bx, by - 1.0 * mm, str(number))
+    c.drawString(qr_x + qr_w + 3 * mm, qr_y + qr_w - 7.5 * mm, "Scan for interactive")
+    c.drawString(qr_x + qr_w + 3 * mm, qr_y + qr_w - 11.0 * mm, "web explorer & AR view.")
 
 def draw_bottom_title_block(c, title, sheet_num):
     """Draws ANSI/ISO standard engineering title block at bottom-right."""
@@ -131,6 +135,10 @@ def draw_bottom_title_block(c, title, sheet_num):
     tb_w = 205 * mm
     tb_h = 16 * mm
     tb_x = x_right - tb_w
+    
+    # White background for title block
+    c.setFillColor(colors.white)
+    c.rect(tb_x, y_bottom, tb_w, tb_h, fill=1, stroke=0)
     
     c.setStrokeColor(colors.HexColor('#0f172a'))
     c.setLineWidth(1.0)
@@ -150,9 +158,8 @@ def draw_bottom_title_block(c, title, sheet_num):
     c.setFont("Helvetica", 6)
     c.setFillColor(colors.HexColor('#64748b'))
     c.drawString(tb_x + 2 * mm, y_bottom + 12 * mm, "TITLE")
-    
-    title_font_size = 7.5 if len(title) > 35 else 8.5
-    c.setFont("Helvetica-Bold", title_font_size)
+    title_font = 7.5 if len(title) > 35 else 8.5
+    c.setFont("Helvetica-Bold", title_font)
     c.setFillColor(colors.HexColor('#070d1e'))
     c.drawString(tb_x + 2 * mm, y_bottom + 5 * mm, title)
     
@@ -186,7 +193,46 @@ def draw_bottom_title_block(c, title, sheet_num):
     # Bottom-left project disclaimer
     c.setFont("Helvetica", 6)
     c.setFillColor(colors.HexColor('#64748b'))
-    c.drawString(18 * mm, y_bottom + 4 * mm, "Original procedural 3D geometry generated for engineering education. Verified glTF 2.0 asset. Renders from project Three.js and Blender engines.")
+    c.drawString(18 * mm, y_bottom + 4 * mm, "3D model generated procedurally for this project (original geometry, not CAD, not a specific product). Renders from project's three.js and Blender engines.")
+
+def draw_card_box(c, x, y, w, h, title=None):
+    """Draws a clean white technical card box with rounded corners and optional title tag."""
+    c.setFillColor(colors.white)
+    c.setStrokeColor(colors.HexColor('#0f172a'))
+    c.setLineWidth(0.8)
+    c.roundRect(x, y, w, h, 2 * mm, fill=1, stroke=1)
+    
+    if title:
+        # Title pill tag
+        tag_w = len(title) * 2.2 * mm + 8 * mm
+        c.setFillColor(colors.HexColor('#f8fafc'))
+        c.setStrokeColor(colors.HexColor('#cbd5e1'))
+        c.setLineWidth(0.6)
+        c.roundRect(x + 2 * mm, y + h - 6 * mm, tag_w, 5.5 * mm, 1 * mm, fill=1, stroke=1)
+        c.setFont("Helvetica-Bold", 6.8)
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.drawString(x + 4 * mm, y + h - 4.2 * mm, title)
+
+def draw_callout_badge(c, bx, by, number, target_xy=None):
+    """Draws a circular numbered engineering callout badge with high contrast leader line and terminal dot."""
+    if target_xy:
+        tx, ty = target_xy
+        c.setStrokeColor(colors.HexColor('#0f172a'))
+        c.setLineWidth(0.8)
+        c.line(bx, by, tx, ty)
+        # Terminal dot on component
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.circle(tx, ty, 1.2 * mm, fill=1, stroke=0)
+        
+    # Badge circle
+    c.setFillColor(colors.white)
+    c.setStrokeColor(colors.HexColor('#0f172a'))
+    c.setLineWidth(1.0)
+    c.circle(bx, by, 3.4 * mm, fill=1, stroke=1)
+    
+    c.setFont("Helvetica-Bold", 7.2)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawCentredString(bx, by - 1.0 * mm, str(number))
 
 # =========================================================================
 # PAGE 1: THE HARDWARE
@@ -196,173 +242,183 @@ def build_page_1(c):
     draw_top_header(
         c, 1, 'A', 'THE HARDWARE',
         "A domestic refrigerator, taken apart",
-        "An original 3D model of a household frost-free domestic refrigerator, exploded into its parts. Numbers match the legend."
+        "An original 3D model of a household frost-free domestic refrigerator, exploded into its parts. Numbers on each drawing match the legend."
     )
     draw_bottom_title_block(c, "THE HARDWARE: REFRIGERATOR, TAKEN APART", 1)
     
     x0 = 18 * mm
     y_content_top = PAGE_H - 48 * mm
     
-    # Render 1: Assembled Refrigerator (Front-Open)
-    fig1a_w = 180 * mm
-    fig1a_h = 115 * mm
+    # ---------------------------------------------------------------------
+    # Card 1: FIG. 1A · ASSEMBLED (OPEN DOORS)
+    # ---------------------------------------------------------------------
+    fig1a_w = 185 * mm
+    fig1a_h = 120 * mm
     fig1a_x = x0
     fig1a_y = y_content_top - fig1a_h
-    
-    c.setStrokeColor(colors.HexColor('#cbd5e1'))
-    c.setLineWidth(0.8)
-    c.rect(fig1a_x, fig1a_y, fig1a_w, fig1a_h, fill=0)
-    
-    # Figure label banner
-    c.setFillColor(colors.HexColor('#f1f5f9'))
-    c.rect(fig1a_x, fig1a_y + fig1a_h - 6 * mm, 45 * mm, 6 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(fig1a_x + 2 * mm, fig1a_y + fig1a_h - 4.2 * mm, "FIG. 1A · ASSEMBLED (OPEN DOORS)")
+    draw_card_box(c, fig1a_x, fig1a_y, fig1a_w, fig1a_h, "FIG. 1A · ASSEMBLED (OPEN DOORS)")
     
     fig1a_img = os.path.join(RENDERS_DIR, 'fig1a_front_open.png')
     if os.path.exists(fig1a_img):
-        c.drawImage(fig1a_img, fig1a_x + 10 * mm, fig1a_y + 4 * mm, width=fig1a_w - 20 * mm, height=fig1a_h - 12 * mm, preserveAspectRatio=True)
+        c.drawImage(fig1a_img, fig1a_x + 4 * mm, fig1a_y + 3 * mm, width=fig1a_w - 8 * mm, height=fig1a_h - 10 * mm, preserveAspectRatio=True)
         
-    # Fig 1A Engineering Callouts
-    draw_callout_badge(c, fig1a_x + 36 * mm, fig1a_y + 60 * mm, 10)  # Fresh Food Door
-    draw_callout_badge(c, fig1a_x + 148 * mm, fig1a_y + 65 * mm, 11) # Freezer Door
-    draw_callout_badge(c, fig1a_x + 115 * mm, fig1a_y + 88 * mm, 4)  # Evaporator Unit
-    draw_callout_badge(c, fig1a_x + 85 * mm, fig1a_y + 52 * mm, 9)   # Shelves & Crisper Drawers
-    draw_callout_badge(c, fig1a_x + 55 * mm, fig1a_y + 98 * mm, 8)   # Cabinet PUF Insulation
-        
-    # Render 2: Exploded View / Rear Machinery
-    fig1b_w = 190 * mm
-    fig1b_h = 115 * mm
-    fig1b_x = fig1a_x + fig1a_w + 10 * mm
+    # Fig 1A Callout pins with leader lines
+    draw_callout_badge(c, fig1a_x + 22 * mm, fig1a_y + 88 * mm, 8, (fig1a_x + 55 * mm, fig1a_y + 95 * mm))   # Cabinet PUF
+    draw_callout_badge(c, fig1a_x + 18 * mm, fig1a_y + 55 * mm, 10, (fig1a_x + 42 * mm, fig1a_y + 55 * mm))  # Fresh Food Door
+    draw_callout_badge(c, fig1a_x + 72 * mm, fig1a_y + 108 * mm, 4, (fig1a_x + 105 * mm, fig1a_y + 98 * mm)) # Evaporator Unit
+    draw_callout_badge(c, fig1a_x + 72 * mm, fig1a_y + 50 * mm, 9, (fig1a_x + 92 * mm, fig1a_y + 52 * mm))   # Shelves & Drawers
+    draw_callout_badge(c, fig1a_x + 168 * mm, fig1a_y + 65 * mm, 11, (fig1a_x + 152 * mm, fig1a_y + 65 * mm)) # Freezer Door
+
+    # ---------------------------------------------------------------------
+    # Card 2: FIG. 1B · EXPLODED VIEW
+    # ---------------------------------------------------------------------
+    fig1b_w = 193 * mm
+    fig1b_h = 120 * mm
+    fig1b_x = fig1a_x + fig1a_w + 6 * mm
     fig1b_y = fig1a_y
-    
-    c.rect(fig1b_x, fig1b_y, fig1b_w, fig1b_h, fill=0)
-    c.setFillColor(colors.HexColor('#f1f5f9'))
-    c.rect(fig1b_x, fig1b_y + fig1b_h - 6 * mm, 40 * mm, 6 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(fig1b_x + 2 * mm, fig1b_y + fig1b_h - 4.2 * mm, "FIG. 1B · EXPLODED REAR VIEW")
+    draw_card_box(c, fig1b_x, fig1b_y, fig1b_w, fig1b_h, "FIG. 1B · EXPLODED VIEW")
     
     fig1c_img = os.path.join(RENDERS_DIR, 'fig1c_exploded.png')
     if os.path.exists(fig1c_img):
-        c.drawImage(fig1c_img, fig1b_x + 10 * mm, fig1b_y + 4 * mm, width=fig1b_w - 20 * mm, height=fig1b_h - 12 * mm, preserveAspectRatio=True)
+        c.drawImage(fig1c_img, fig1b_x + 4 * mm, fig1b_y + 3 * mm, width=fig1b_w - 8 * mm, height=fig1b_h - 10 * mm, preserveAspectRatio=True)
         
-    # Fig 1B Engineering Callouts
-    draw_callout_badge(c, fig1b_x + 48 * mm, fig1b_y + 24 * mm, 1)   # Compressor
-    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 20 * mm, 6)   # Condenser Fan
-    draw_callout_badge(c, fig1b_x + 100 * mm, fig1b_y + 36 * mm, 5)  # Filter-Drier
-    draw_callout_badge(c, fig1b_x + 58 * mm, fig1b_y + 44 * mm, 7)   # Refrigerant Lines
-    draw_callout_badge(c, fig1b_x + 106 * mm, fig1b_y + 58 * mm, 3)  # Capillary Tube
-    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 70 * mm, 2)   # Condenser Coil
-    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 10 * mm, 12)  # Rear Ventilation Grille
-        
-    # Lower Section: Component Legend & Model Data Box
+    # Fig 1B Callout pins with leader lines
+    draw_callout_badge(c, fig1b_x + 105 * mm, fig1b_y + 112 * mm, 4, (fig1b_x + 105 * mm, fig1b_y + 100 * mm)) # Evaporator
+    draw_callout_badge(c, fig1b_x + 155 * mm, fig1b_y + 85 * mm, 2, (fig1b_x + 135 * mm, fig1b_y + 70 * mm))   # Condenser Coil
+    draw_callout_badge(c, fig1b_x + 172 * mm, fig1b_y + 45 * mm, 12, (fig1b_x + 148 * mm, fig1b_y + 38 * mm))  # Ventilation Grille
+    draw_callout_badge(c, fig1b_x + 148 * mm, fig1b_y + 22 * mm, 6, (fig1b_x + 142 * mm, fig1b_y + 26 * mm))   # Condenser Fan
+    draw_callout_badge(c, fig1b_x + 120 * mm, fig1b_y + 42 * mm, 3, (fig1b_x + 118 * mm, fig1b_y + 35 * mm))   # Capillary Tube
+    draw_callout_badge(c, fig1b_x + 106 * mm, fig1b_y + 12 * mm, 1, (fig1b_x + 106 * mm, fig1b_y + 20 * mm))   # Compressor
+    draw_callout_badge(c, fig1b_x + 75 * mm, fig1b_y + 38 * mm, 7, (fig1b_x + 92 * mm, fig1b_y + 32 * mm))    # Refrigerant Lines
+    draw_callout_badge(c, fig1b_x + 35 * mm, fig1b_y + 75 * mm, 10, (fig1b_x + 42 * mm, fig1b_y + 75 * mm))   # Door Assembly
+
+    # ---------------------------------------------------------------------
+    # Lower Section: Component Legend & Data Boxes
+    # ---------------------------------------------------------------------
     leg_y_top = fig1a_y - 6 * mm
     leg_w = 230 * mm
-    leg_h = 80 * mm
+    leg_h = 76 * mm
+    draw_card_box(c, x0, leg_y_top - leg_h, leg_w, leg_h, "Component legend")
     
-    # Legend Frame
-    c.rect(x0, leg_y_top - leg_h, leg_w, leg_h, fill=0)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(x0 + 3 * mm, leg_y_top - 6 * mm, "Component legend")
-    
-    # 12 Legend Items in 2 Columns
     legend_items = [
-        (1, "Hermetic Compressor", "Draws in LP refrigerant vapour from evaporator, compresses it to HP gas."),
-        (2, "Condenser Coil", "Rejects heat (Q_out) to surroundings, condensing HP vapour to liquid."),
-        (3, "Capillary Tube", "Throttles high-pressure liquid, plunging pressure & saturation temperature."),
-        (4, "Evaporator Unit", "Absorbs heat (Q_in) from food space, vaporising sub-zero refrigerant."),
-        (5, "Filter-Drier", "Adsorbs trace moisture (zeolite beads) & filters debris before capillary."),
-        (6, "Condenser Fan", "Forces ambient room air across condenser coil and compressor casing."),
-        (7, "Refrigerant Circuit Lines", "Discharge, condenser return, and insulated suction lines."),
-        (8, "PUF Insulation & Cabinet", "Cyclopentane-blown foam (k ≈ 0.02 W/m·K) preventing heat leak."),
-        (9, "Shelves & Crisper Drawers", "Tempered glass shelves and humidity-regulated produce bins."),
-        (10, "Fresh Food Door Assembly", "Insulated left door with magnetic bellows gasket seal and bins."),
-        (11, "Freezer Door Assembly", "Sub-zero compartment right door with dual hinge pivot."),
-        (12, "Rear Ventilation Grille", "Chassis louvers channeling forced hot air exhaust from compressor.")
+        (1, "Compressor", "Draws in low-pressure refrigerant vapour from evaporator and raises its pressure and temperature so it can reject heat in the condenser."),
+        (2, "Condenser", "Rejects heat (Q_out) from the refrigerant to the surroundings and condenses high-pressure vapour into liquid."),
+        (3, "Expansion Device", "Throttles high-pressure liquid, plunging its pressure and saturation temperature as it enters the evaporator."),
+        (4, "Evaporator", "Absorbs heat (Q_in) from the food compartments, vaporising the low-pressure cold liquid refrigerant."),
+        (5, "Receiver / Filter-Drier", "Adsorbs trace moisture (zeolite beads) and filters solid particulate debris before the capillary entrance."),
+        (6, "Condenser Fan", "Forces ambient room air across the condenser coil and compressor casing to accelerate heat transfer."),
+        (7, "Refrigerant Circuit Lines", "Hot-gas discharge line, liquid line, and insulated low-pressure suction vapour line."),
+        (8, "PUF Insulation & Cabinet", "Cyclopentane-blown polyurethane foam insulation (k ≈ 0.02 W/m·K) preventing heat ingress."),
+        (9, "Shelves & Crisper Drawers", "Tempered glass shelves and humidity-regulated vegetable crisper storage drawers."),
+        (10, "Fresh Food Door Assembly", "Insulated cabinet door with magnetic bellows gasket seal and moulded door shelf bins."),
+        (11, "Freezer Door Assembly", "Dedicated sub-zero compartment door mounted on dual-axis hinge pivots."),
+        (12, "Rear Ventilation Grille", "Protective rear stamped grille channelising forced cooling air exhaust across the machinery bay.")
     ]
     
     col_w = (leg_w - 8 * mm) / 2
     for i, (num, name, desc) in enumerate(legend_items):
         cx = x0 + 4 * mm + (0 if i < 6 else col_w)
-        cy = leg_y_top - 14 * mm - (i % 6) * 10.5 * mm
+        cy = leg_y_top - 12 * mm - (i % 6) * 9.8 * mm
         
-        # Circle badge
-        c.setFillColor(colors.HexColor('#0f172a'))
-        c.circle(cx + 3 * mm, cy + 1.5 * mm, 3.2 * mm, fill=1, stroke=0)
-        c.setFont("Helvetica-Bold", 7)
+        # Number badge circle (white with black border)
         c.setFillColor(colors.white)
+        c.setStrokeColor(colors.HexColor('#0f172a'))
+        c.setLineWidth(0.8)
+        c.circle(cx + 3 * mm, cy + 1.2 * mm, 2.8 * mm, fill=1, stroke=1)
+        c.setFont("Helvetica-Bold", 6.8)
+        c.setFillColor(colors.HexColor('#0f172a'))
         c.drawCentredString(cx + 3 * mm, cy + 0.3 * mm, str(num))
         
-        c.setFont("Helvetica-Bold", 7.5)
+        c.setFont("Helvetica-Bold", 7.2)
         c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(cx + 8 * mm, cy + 2 * mm, name)
+        c.drawString(cx + 7.5 * mm, cy + 1.8 * mm, name)
         
-        c.setFont("Helvetica", 6.5)
+        c.setFont("Helvetica", 6.0)
         c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(cx + 8 * mm, cy - 1.5 * mm, desc)
+        c.drawString(cx + 7.5 * mm, cy - 1.5 * mm, desc[:72] + ("..." if len(desc) > 72 else ""))
         
-    # Right Data Boxes: Verified Model Data & Nameplate Data
+    # Right Data Box: Model Data & Laboratory Rig Data
     data_x = x0 + leg_w + 6 * mm
     data_w = PAGE_W - 18 * mm - data_x
     data_h = leg_h
+    draw_card_box(c, data_x, leg_y_top - data_h, data_w, data_h)
     
-    c.rect(data_x, leg_y_top - data_h, data_w, data_h, fill=0)
-    
-    # Model Data Title
+    # Model Data Section
     c.setFont("Helvetica-Bold", 8.5)
     c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(data_x + 3 * mm, leg_y_top - 6 * mm, "Model data")
-    c.setFillColor(colors.HexColor('#16a34a'))
-    c.setFont("Helvetica-Bold", 6.5)
-    c.drawString(data_x + 22 * mm, leg_y_top - 6 * mm, "[VERIFIED GLTF 2.0]")
+    c.drawString(data_x + 4 * mm, leg_y_top - 6 * mm, "Model data")
+    
+    # verified teal pill
+    c.setFillColor(colors.HexColor('#0d9488'))
+    c.roundRect(data_x + 24 * mm, leg_y_top - 7.5 * mm, 14 * mm, 4.2 * mm, 1 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 5.5)
+    c.setFillColor(colors.white)
+    c.drawCentredString(data_x + 31 * mm, leg_y_top - 6.2 * mm, "verified")
     
     specs = [
-        ("MODEL", "Original procedural GLB, generated by generate_refrigerator_model.py"),
+        ("MODEL", "Original procedural GLB (glTF 2.0), generated by generate_refrigerator_model.py"),
         ("VALIDATION", "Khronos glTF-Validator: 0 errors, 0 warnings"),
-        ("HIERARCHY", "165 named nodes · 151 meshes · 15 PBR materials"),
-        ("DOOR HINGES", "Dual animated pivot axes (-0.485m & +0.485m hinge origins)"),
+        ("GEOMETRY", "165 named nodes · 151 meshes · 15 PBR materials"),
         ("FOOTPRINT", "1.00 m wide × 0.72 m deep × 1.80 m tall (generic domestic scale)")
     ]
     for idx, (lbl, val) in enumerate(specs):
-        sy = leg_y_top - 12 * mm - idx * 4.5 * mm
-        c.setFont("Helvetica-Bold", 6.5)
-        c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(data_x + 3 * mm, sy, f"{lbl}:")
-        c.setFont("Helvetica", 6.5)
-        c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(data_x + 26 * mm, sy, val)
+        sy = leg_y_top - 12 * mm - idx * 4.2 * mm
+        c.setFont("Helvetica-Bold", 6.2)
+        c.setFillColor(colors.HexColor('#64748b'))
+        c.drawString(data_x + 4 * mm, sy, lbl)
         
-    # Lower Nameplate Data Section
-    np_y = leg_y_top - 38 * mm
-    c.line(data_x, np_y + 2 * mm, data_x + data_w, np_y + 2 * mm)
+        # Dotted leader line
+        c.setStrokeColor(colors.HexColor('#cbd5e1'))
+        c.setLineWidth(0.5)
+        c.setDash([1, 2], 0)
+        c.line(data_x + 22 * mm, sy + 1 * mm, data_x + 35 * mm, sy + 1 * mm)
+        c.setDash([], 0)
+        
+        c.setFont("Helvetica", 6.2)
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.drawString(data_x + 37 * mm, sy, val)
+        
+    # Rig Data Section
+    np_y = leg_y_top - 34 * mm
     c.setFont("Helvetica-Bold", 8.5)
-    c.drawString(data_x + 3 * mm, np_y - 3 * mm, "Typical domestic nameplate specifications")
-    c.setFont("Helvetica-Bold", 6.5)
-    c.setFillColor(colors.HexColor('#ea580c'))
-    c.drawString(data_x + 65 * mm, np_y - 3 * mm, "[REPRESENTATIVE REFERENCE]")
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(data_x + 4 * mm, np_y, "Typical domestic nameplate specifications")
+    
+    # to be filled red pill
+    c.setFillColor(colors.HexColor('#c2410c'))
+    c.roundRect(data_x + 72 * mm, np_y - 1.5 * mm, 17 * mm, 4.2 * mm, 1 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 5.5)
+    c.setFillColor(colors.white)
+    c.drawCentredString(data_x + 80.5 * mm, np_y - 0.2 * mm, "representative")
     
     np_specs = [
         ("REFRIGERANT", "R134a / R600a (Isobutane, GWP=3, ODP=0)"),
-        ("COMPRESSOR", "1/6 to 1/4 HP Hermetic Reciprocating (~120W to 180W)"),
+        ("COMPRESSOR", "1/6 to 1/4 HP Hermetic Reciprocating (~120W to 180W input)"),
         ("CONDENSING P", "8.0 to 12.5 bar (~35°C to 45°C saturation temp)"),
         ("EVAPORATING P", "1.1 to 1.4 bar (~ -20°C to -15°C saturation temp)"),
-        ("ESTIMATED COP", "1.8 to 2.4 (Typical seasonal household operating range)")
+        ("ESTIMATED COP", "1.8 to 2.4 (Typical household operating range)")
     ]
     for idx, (lbl, val) in enumerate(np_specs):
-        sy = np_y - 9 * mm - idx * 4.5 * mm
-        c.setFont("Helvetica-Bold", 6.5)
-        c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(data_x + 3 * mm, sy, f"{lbl}:")
-        c.setFont("Helvetica", 6.5)
+        sy = np_y - 6 * mm - idx * 4.2 * mm
+        c.setFont("Helvetica-Bold", 6.2)
+        c.setFillColor(colors.HexColor('#64748b'))
+        c.drawString(data_x + 4 * mm, sy, lbl)
+        
+        # Dotted leader line
+        c.setStrokeColor(colors.HexColor('#cbd5e1'))
+        c.setLineWidth(0.5)
+        c.setDash([1, 2], 0)
+        c.line(data_x + 25 * mm, sy + 1 * mm, data_x + 38 * mm, sy + 1 * mm)
+        c.setDash([], 0)
+        
+        c.setFont("Helvetica", 6.2)
         c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(data_x + 28 * mm, sy, val)
+        c.drawString(data_x + 40 * mm, sy, val)
         
     c.showPage()
 
 # =========================================================================
-# PAGE 2: HOW A DOMESTIC REFRIGERATOR WORKS
+# PAGE 2: THE REFRIGERATION CYCLE
 # =========================================================================
 def build_page_2(c):
     draw_engineering_frame(c, 2)
@@ -376,163 +432,150 @@ def build_page_2(c):
     x0 = 18 * mm
     y_content_top = PAGE_H - 48 * mm
     
-    # Fig 2A: Cycle Schematic Diagram
-    fig2a_w = 175 * mm
-    fig2a_h = 105 * mm
-    fig2a_x = x0
-    fig2a_y = y_content_top - fig2a_h
+    # ---------------------------------------------------------------------
+    # Top Row: Fig 2A (Schematic), Fig 2B (p-h Diagram), Side Summary Card
+    # ---------------------------------------------------------------------
+    top_row_h = 112 * mm
+    top_row_y = y_content_top - top_row_h
     
-    c.setStrokeColor(colors.HexColor('#cbd5e1'))
-    c.setLineWidth(0.8)
-    c.rect(fig2a_x, fig2a_y, fig2a_w, fig2a_h, fill=0)
-    c.setFillColor(colors.HexColor('#f1f5f9'))
-    c.rect(fig2a_x, fig2a_y + fig2a_h - 6 * mm, 45 * mm, 6 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(fig2a_x + 2 * mm, fig2a_y + fig2a_h - 4.2 * mm, "FIG. 2A · CYCLE SCHEMATIC")
-    
+    # Fig 2A: Cycle Schematic Card
+    fig2a_w = 152 * mm
+    draw_card_box(c, x0, top_row_y, fig2a_w, top_row_h, "FIG. 2A · CYCLE SCHEMATIC")
     fig2a_img = os.path.join(RENDERS_DIR, 'fig2a_cycle_schematic.png')
     if os.path.exists(fig2a_img):
-        c.drawImage(fig2a_img, fig2a_x + 5 * mm, fig2a_y + 4 * mm, width=fig2a_w - 10 * mm, height=fig2a_h - 12 * mm, preserveAspectRatio=True)
+        c.drawImage(fig2a_img, x0 + 4 * mm, top_row_y + 4 * mm, width=fig2a_w - 8 * mm, height=top_row_h - 12 * mm, preserveAspectRatio=True)
         
-    # Fig 2B: p-h Diagram Sketch
-    fig2b_w = 125 * mm
-    fig2b_h = 105 * mm
-    fig2b_x = fig2a_x + fig2a_w + 6 * mm
-    fig2b_y = fig2a_y
-    
-    c.rect(fig2b_x, fig2b_y, fig2b_w, fig2b_h, fill=0)
-    c.setFillColor(colors.HexColor('#f1f5f9'))
-    c.rect(fig2b_x, fig2b_y + fig2b_h - 6 * mm, 45 * mm, 6 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(fig2b_x + 2 * mm, fig2b_y + fig2b_h - 4.2 * mm, "FIG. 2B · p–h DIAGRAM SKETCH")
-    
+    # Fig 2B: p-h Diagram Card
+    fig2b_w = 132 * mm
+    fig2b_x = x0 + fig2a_w + 6 * mm
+    draw_card_box(c, fig2b_x, top_row_y, fig2b_w, top_row_h, "FIG. 2B · p–h SKETCH (SCHEMATIC)")
     fig2b_img = os.path.join(RENDERS_DIR, 'fig2b_ph_diagram.png')
     if os.path.exists(fig2b_img):
-        c.drawImage(fig2b_img, fig2b_x + 4 * mm, fig2b_y + 4 * mm, width=fig2b_w - 8 * mm, height=fig2b_h - 12 * mm, preserveAspectRatio=True)
+        c.drawImage(fig2b_img, fig2b_x + 4 * mm, top_row_y + 4 * mm, width=fig2b_w - 8 * mm, height=top_row_h - 12 * mm, preserveAspectRatio=True)
         
-    # High vs Low Pressure Summary Box
-    sum_w = PAGE_W - 18 * mm - (fig2b_x + fig2b_w + 6 * mm)
-    sum_x = fig2b_x + fig2b_w + 6 * mm
-    sum_y = fig2a_y
-    sum_h = fig2a_h
+    # Side Card: High & Low Pressure Summary & Fig 2C 3D Flow Trace
+    side_w = PAGE_W - 18 * mm - (fig2b_x + fig2b_w + 6 * mm)
+    side_x = fig2b_x + fig2b_w + 6 * mm
+    draw_card_box(c, side_x, top_row_y, side_w, top_row_h)
     
-    c.rect(sum_x, sum_y, sum_w, sum_h, fill=0)
-    c.setFont("Helvetica-Bold", 8)
-    c.setFillColor(colors.HexColor('#b91c1c'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 8 * mm, "■ High-pressure side")
-    c.setFont("Helvetica", 6.8)
-    c.setFillColor(colors.HexColor('#334155'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 14 * mm, "Compressor outlet → condenser coil → filter-drier →")
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 18 * mm, "capillary inlet. Refrigerant rejects heat (Q_out) here.")
-    
-    c.setFont("Helvetica-Bold", 8)
-    c.setFillColor(colors.HexColor('#0284c7'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 28 * mm, "■ Low-pressure side")
-    c.setFont("Helvetica", 6.8)
-    c.setFillColor(colors.HexColor('#334155'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 34 * mm, "Capillary outlet → evaporator coil → suction line →")
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 38 * mm, "compressor inlet. Refrigerant boils & absorbs heat (Q_in).")
-    
-    c.line(sum_x + 3 * mm, sum_y + sum_h - 46 * mm, sum_x + sum_w - 3 * mm, sum_y + sum_h - 46 * mm)
+    # High-pressure side
+    c.setFillColor(colors.HexColor('#dc2626'))
+    c.rect(side_x + 4 * mm, top_row_y + top_row_h - 8 * mm, 3 * mm, 3 * mm, fill=1, stroke=0)
     c.setFont("Helvetica-Bold", 7.5)
     c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 52 * mm, "Energy balance (steady state):")
-    c.setFont("Helvetica-Bold", 8)
+    c.drawString(side_x + 9 * mm, top_row_y + top_row_h - 7.5 * mm, "High-pressure side")
+    c.setFont("Helvetica", 6.2)
+    c.setFillColor(colors.HexColor('#475569'))
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 12 * mm, "Compressor outlet → condenser → filter-drier →")
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 15.5 * mm, "capillary inlet. Refrigerant rejects heat (Q_out) here.")
+    
+    # Low-pressure side
+    c.setFillColor(colors.HexColor('#0284c7'))
+    c.rect(side_x + 4 * mm, top_row_y + top_row_h - 22 * mm, 3 * mm, 3 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(side_x + 9 * mm, top_row_y + top_row_h - 21.5 * mm, "Low-pressure side")
+    c.setFont("Helvetica", 6.2)
+    c.setFillColor(colors.HexColor('#475569'))
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 26 * mm, "Capillary outlet → evaporator → suction line →")
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 29.5 * mm, "compressor inlet. Refrigerant absorbs heat (Q_in).")
+    
+    # Energy Balance Equation
+    c.setFont("Helvetica-Bold", 6.8)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 36 * mm, "Energy balance (steady state):")
+    c.setFont("Helvetica-Bold", 7.0)
     c.setFillColor(colors.HexColor('#ea580c'))
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 58 * mm, "Q_out = Q_in + W_in")
-    c.setFont("Helvetica-Bold", 8)
-    c.drawString(sum_x + 3 * mm, sum_y + sum_h - 64 * mm, "COP = Q_in / W_in")
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 41 * mm, "Q_out = Q_in + W_in")
+    c.drawString(side_x + 4 * mm, top_row_y + top_row_h - 45.5 * mm, "COP = Q_in / W_in")
     
-    # 3D Conceptual Flow Render Box
-    flow_box_y = sum_y
-    flow_box_h = 32 * mm
+    # Mini Fig 2C: Flow Trace in 3D Model
+    fig2c_card_h = 56 * mm
+    c.setStrokeColor(colors.HexColor('#cbd5e1'))
+    c.line(side_x, top_row_y + fig2c_card_h + 4 * mm, side_x + side_w, top_row_y + fig2c_card_h + 4 * mm)
     c.setFont("Helvetica-Bold", 6.5)
-    c.setFillColor(colors.HexColor('#64748b'))
-    c.drawString(sum_x + 3 * mm, sum_y + 24 * mm, "FIG. 2C · FLOW TRACE IN 3D")
-    fig1b_img = os.path.join(RENDERS_DIR, 'fig1b_rear_machinery.png')
-    if os.path.exists(fig1b_img):
-        c.drawImage(fig1b_img, sum_x + 3 * mm, sum_y + 2 * mm, width=sum_w - 6 * mm, height=21 * mm, preserveAspectRatio=True)
-        
-    # Lower 4 Detailed Process Cards
-    card_y_top = fig2a_y - 6 * mm
-    card_h = 88 * mm
-    card_w = (PAGE_W - 36 * mm - 9 * mm) / 4
+    c.setFillColor(colors.HexColor('#475569'))
+    c.drawString(side_x + 4 * mm, top_row_y + fig2c_card_h + 1 * mm, "FIG. 2C · FLOW TRACE IN 3D MODEL")
     
-    cards_data = [
-        (1, "Evaporation (heat absorbed)",
+    fig2c_img = os.path.join(RENDERS_DIR, 'fig2c_flow_trace.png')
+    if os.path.exists(fig2c_img):
+        c.drawImage(fig2c_img, side_x + 4 * mm, top_row_y + 2 * mm, width=side_w - 8 * mm, height=fig2c_card_h - 4 * mm, preserveAspectRatio=True)
+
+    # ---------------------------------------------------------------------
+    # Bottom Row: 4 Process Cards (1 Evaporation, 2 Compression, 3 Condensation, 4 Expansion)
+    # ---------------------------------------------------------------------
+    bot_y_top = top_row_y - 6 * mm
+    bot_h = 82 * mm
+    card_w = (PAGE_W - 36 * mm - 18 * mm) / 4 # 4 equal cards with 6mm gutters
+    
+    processes = [
+        (1, "Evaporation (heat absorbed)", 
          "Cold, low-pressure liquid-vapour mixture enters the evaporator coil.",
-         "It absorbs heat from food and air in the freezer and fresh food compartments, boiling into low-pressure vapour.",
+         "It absorbs heat from food compartments, boiling into low-pressure vapour.",
          "Ideal: Constant-pressure heat addition until refrigerant is saturated vapour.",
-         "Real: Slight frictional pressure drop across coil; vapour is superheated 3-5 K at outlet to protect compressor.",
-         "#0284c7"),
-        (2, "Compression (work input)",
+         "Real: Slight frictional pressure drop across coil; vapour is superheated 3-5 K at outlet to protect compressor."),
+         
+        (2, "Compression (work input)", 
          "Compressor draws in low-pressure vapour and squeezes it into hot gas.",
          "Driven by electric motor work input. Pressure and saturation temperature rise above room ambient.",
          "Ideal: Reversible isentropic (adiabatic) compression (s1 = s2).",
-         "Real: Valve losses, motor winding heat, and piston friction make compression non-isentropic (s2 > s1).",
-         "#dc2626"),
-        (3, "Condensation (heat rejected)",
+         "Real: Valve losses, motor winding heat, and piston friction make compression non-isentropic (s2 > s1)."),
+         
+        (3, "Condensation (heat rejected)", 
          "Hot, high-pressure vapour discharges into the rear condenser coil.",
          "Rejects heat (Q_out = Q_in + W_in) to room air. Refrigerant desuperheats, condenses, and subcools.",
          "Ideal: Constant-pressure heat rejection to saturated liquid state.",
-         "Real: Slight subcooling (3-8 K) occurs at coil exit, ensuring 100% liquid enters capillary tube.",
-         "#ea580c"),
-        (4, "Expansion (throttling)",
+         "Real: Slight subcooling (3-8 K) occurs at coil exit, ensuring 100% liquid enters capillary tube."),
+         
+        (4, "Expansion (throttling)", 
          "High-pressure liquid is forced through the narrow capillary tube.",
          "High hydraulic resistance causes pressure to drop abruptly. A fraction flashes to vapour, chilling the stream.",
          "Ideal: Irreversible throttling at constant enthalpy (h3 = h4, zero work).",
-         "Real: Adiabatic flow with critical choking; soldered to suction line to form internal heat exchanger.",
-         "#0ea5e9")
+         "Real: Adiabatic flow with critical choking; soldered to suction line to form internal heat exchanger.")
     ]
     
-    for i, (num, title, p1, p2, ideal_t, real_t, col) in enumerate(cards_data):
-        cx = x0 + i * (card_w + 3 * mm)
-        c.rect(cx, card_y_top - card_h, card_w, card_h, fill=0)
+    for idx, (num, title, p1, p2, ideal, real) in enumerate(processes):
+        bx = x0 + idx * (card_w + 6 * mm)
+        by = bot_y_top - bot_h
+        draw_card_box(c, bx, by, card_w, bot_h)
         
-        # Number badge
-        c.setFillColor(colors.HexColor(col))
-        c.circle(cx + 5 * mm, card_y_top - 6 * mm, 3.5 * mm, fill=1, stroke=0)
-        c.setFont("Helvetica-Bold", 8)
+        # Number badge (white with black border)
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.circle(bx + 7 * mm, by + bot_h - 7 * mm, 3.5 * mm, fill=1, stroke=0)
+        c.setFont("Helvetica-Bold", 7.5)
         c.setFillColor(colors.white)
-        c.drawCentredString(cx + 5 * mm, card_y_top - 7.2 * mm, str(num))
+        c.drawCentredString(bx + 7 * mm, by + bot_h - 8.2 * mm, str(num))
         
-        c.setFont("Helvetica-Bold", 8)
+        c.setFont("Helvetica-Bold", 7.8)
         c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(cx + 11 * mm, card_y_top - 6.5 * mm, title)
+        c.drawString(bx + 13 * mm, by + bot_h - 7.5 * mm, title)
         
-        c.setFont("Helvetica", 6.8)
+        # Paragraphs
+        c.setFont("Helvetica", 6.5)
         c.setFillColor(colors.HexColor('#334155'))
-        c.drawString(cx + 3 * mm, card_y_top - 14 * mm, p1[:55])
-        c.drawString(cx + 3 * mm, card_y_top - 18 * mm, p1[55:110])
-        c.drawString(cx + 3 * mm, card_y_top - 23 * mm, p2[:55])
-        c.drawString(cx + 3 * mm, card_y_top - 27 * mm, p2[55:110])
+        c.drawString(bx + 4 * mm, by + bot_h - 15 * mm, p1[:58] + ("..." if len(p1) > 58 else ""))
+        c.drawString(bx + 4 * mm, by + bot_h - 19 * mm, p2[:58] + ("..." if len(p2) > 58 else ""))
         
-        # Ideal block
-        c.setFillColor(colors.HexColor('#f8fafc'))
-        c.rect(cx + 2 * mm, card_y_top - 54 * mm, card_w - 4 * mm, 24 * mm, fill=1, stroke=0)
+        # Ideal Cycle
         c.setFont("Helvetica-Bold", 6.5)
         c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(cx + 3 * mm, card_y_top - 33 * mm, "Ideal cycle:")
+        c.drawString(bx + 4 * mm, by + bot_h - 26 * mm, "Ideal cycle:")
         c.setFont("Helvetica", 6.2)
         c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(cx + 3 * mm, card_y_top - 38 * mm, ideal_t[:50])
-        c.drawString(cx + 3 * mm, card_y_top - 42 * mm, ideal_t[50:100])
+        c.drawString(bx + 4 * mm, by + bot_h - 30 * mm, ideal[:60] + ("..." if len(ideal) > 60 else ""))
         
-        # Real block
+        # Real System
         c.setFont("Helvetica-Bold", 6.5)
-        c.setFillColor(colors.HexColor('#b91c1c'))
-        c.drawString(cx + 3 * mm, card_y_top - 48 * mm, "Real system:")
+        c.setFillColor(colors.HexColor('#dc2626'))
+        c.drawString(bx + 4 * mm, by + bot_h - 38 * mm, "Real system:")
         c.setFont("Helvetica", 6.2)
         c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(cx + 3 * mm, card_y_top - 52 * mm, real_t[:50])
-        c.drawString(cx + 3 * mm, card_y_top - 56 * mm, real_t[50:100])
+        c.drawString(bx + 4 * mm, by + bot_h - 42 * mm, real[:60] + ("..." if len(real) > 60 else ""))
         
     c.showPage()
 
 # =========================================================================
-# PAGE 3: THE PROJECT
+# PAGE 3: THE PROJECT (ARCHITECTURE & APP VIEWS)
 # =========================================================================
 def build_page_3(c):
     draw_engineering_frame(c, 3)
@@ -546,170 +589,224 @@ def build_page_3(c):
     x0 = 18 * mm
     y_content_top = PAGE_H - 48 * mm
     
-    # 4 Top Columns: C1 Objective, C2 Architecture, C3 How it works, C4 Applications
-    col_w = (PAGE_W - 36 * mm - 9 * mm) / 4
-    col_h = 95 * mm
+    # ---------------------------------------------------------------------
+    # Top Row: 4 Cards (C1 Motivation, C2 Architecture, C3 How it works, C4 Limitations)
+    # ---------------------------------------------------------------------
+    top_h = 100 * mm
+    top_y = y_content_top - top_h
+    col_w = (PAGE_W - 36 * mm - 18 * mm) / 4
     
-    # C1: Objective & Motivation
-    c.setStrokeColor(colors.HexColor('#cbd5e1'))
-    c.rect(x0, y_content_top - col_h, col_w, col_h, fill=0)
-    c.setFont("Helvetica-Bold", 8.5)
+    # Card C1: Objective & motivation
+    c1_x = x0
+    draw_card_box(c, c1_x, top_y, col_w, top_h)
+    
+    # Pill tag
     c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(x0 + 3 * mm, y_content_top - 7 * mm, "C1 Objective & motivation")
-    c.setFont("Helvetica", 6.8)
-    c.setFillColor(colors.HexColor('#334155'))
-    
-    lines_c1 = [
-        "Students learn the vapour compression cycle as",
-        "a theoretical four-stage schematic, but a real",
-        "domestic refrigerator is a complex machine with",
-        "hidden coils, capillary lines, and foamed insulation.",
-        "",
-        "This project bridges the gap: every component can",
-        "be tapped to inspect its thermodynamic function,",
-        "the door opens smoothly on dual hinge pivots, and",
-        "the life-size refrigerator can be placed in AR on",
-        "a real floor or table — with zero app installation.",
-        "",
-        "• Identify the 4 core cycle components in 3D.",
-        "• Trace high-pressure and low-pressure sides.",
-        "• Walk around the virtual appliance in life-size AR.",
-        "• Relate physical layout to the p-h diagram."
-    ]
-    for idx, l in enumerate(lines_c1):
-        c.drawString(x0 + 3 * mm, y_content_top - 14 * mm - idx * 4.2 * mm, l)
-        
-    # C2: Implementation Architecture
-    c2_x = x0 + col_w + 3 * mm
-    c.rect(c2_x, y_content_top - col_h, col_w, col_h, fill=0)
-    c.setFont("Helvetica-Bold", 8.5)
-    c.drawString(c2_x + 3 * mm, y_content_top - 7 * mm, "C2 Implementation architecture")
-    
-    # Draw architecture boxes
-    c.setFillColor(colors.HexColor('#070d1e'))
-    c.rect(c2_x + 5 * mm, y_content_top - 20 * mm, col_w - 10 * mm, 8 * mm, fill=1, stroke=0)
+    c.roundRect(c1_x + 4 * mm, top_y + top_h - 8 * mm, 6 * mm, 5 * mm, 1 * mm, fill=1, stroke=0)
     c.setFont("Helvetica-Bold", 6.8)
-    c.setFillColor(colors.HexColor('#00e5ff'))
-    c.drawCentredString(c2_x + col_w / 2, y_content_top - 15 * mm, "generate_refrigerator_model.py (Blender Python)")
-    
-    c.setFillColor(colors.HexColor('#ea580c'))
-    c.rect(c2_x + 10 * mm, y_content_top - 34 * mm, col_w - 20 * mm, 8 * mm, fill=1, stroke=0)
     c.setFillColor(colors.white)
-    c.drawCentredString(c2_x + col_w / 2, y_content_top - 29 * mm, "Domestic_Refrigerator.glb (glTF 2.0)")
-    
-    c.setFillColor(colors.HexColor('#f1f5f9'))
-    c.setStrokeColor(colors.HexColor('#1e2e5c'))
-    c.rect(c2_x + 4 * mm, y_content_top - 58 * mm, (col_w - 10 * mm) / 2, 18 * mm, fill=1, stroke=1)
-    c.setFont("Helvetica-Bold", 6.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawCentredString(c2_x + 4 * mm + (col_w - 10 * mm) / 4, y_content_top - 46 * mm, "Web Explorer")
-    c.setFont("Helvetica", 5.5)
-    c.drawCentredString(c2_x + 4 * mm + (col_w - 10 * mm) / 4, y_content_top - 51 * mm, "React · Three.js")
-    
-    c.rect(c2_x + 6 * mm + (col_w - 10 * mm) / 2, y_content_top - 58 * mm, (col_w - 10 * mm) / 2, 18 * mm, fill=1, stroke=1)
-    c.setFont("Helvetica-Bold", 6.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawCentredString(c2_x + 6 * mm + 3 * (col_w - 10 * mm) / 4, y_content_top - 46 * mm, "WebAR / XR")
-    c.setFont("Helvetica", 5.5)
-    c.drawCentredString(c2_x + 6 * mm + 3 * (col_w - 10 * mm) / 4, y_content_top - 51 * mm, "<model-viewer>")
-    
-    c.setFont("Helvetica-Bold", 6)
-    c.setFillColor(colors.HexColor('#0284c7'))
-    c.drawString(c2_x + 4 * mm, y_content_top - 68 * mm, "Unity 6 URP Player")
-    c.drawString(c2_x + 4 * mm, y_content_top - 73 * mm, "A3 Poster PDF Generator")
-    c.setFont("Helvetica", 5.8)
-    c.setFillColor(colors.HexColor('#475569'))
-    c.drawString(c2_x + 4 * mm, y_content_top - 80 * mm, "Single shared JSON dataset drives website,")
-    c.drawString(c2_x + 4 * mm, y_content_top - 84 * mm, "Unity app, and this poster for 100% agreement.")
-    
-    # C3: How it works
-    c3_x = c2_x + col_w + 3 * mm
-    c.rect(c3_x, y_content_top - col_h, col_w, col_h, fill=0)
+    c.drawCentredString(c1_x + 7 * mm, top_y + top_h - 6.5 * mm, "C1")
     c.setFont("Helvetica-Bold", 8.5)
     c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(c3_x + 3 * mm, y_content_top - 7 * mm, "C3 How it works")
+    c.drawString(c1_x + 12 * mm, top_y + top_h - 6.8 * mm, "Objective & motivation")
     
-    lines_c3 = [
-        "3D MODEL",
-        "Procedural geometry (compressor shell, swept copper",
-        "tubing, serpentine condenser, evaporator fins) with",
-        "dual animated door hinges exported to glTF 2.0.",
-        "",
-        "WEB EXPLORER",
-        "Interactive tap/click raycast picking, single-part highlight,",
-        "ghosted isolate mode, explode slider, cycle flow",
-        "pulse animation, and full component library modal.",
-        "",
-        "AUGMENTED REALITY",
-        "Zero-install WebAR: WebXR & Scene Viewer on",
-        "ARCore Android; AR Quick Look on iOS. Live camera",
-        "overlay fallback on desktops & laptops.",
-        "",
-        "UNITY 6 PROJECT",
-        "URP scenes: MainMenu, RefrigeratorExplorer, and",
-        "AR Foundation scene for optional native builds."
-    ]
-    for idx, l in enumerate(lines_c3):
-        is_heading = l in ["3D MODEL", "WEB EXPLORER", "AUGMENTED REALITY", "UNITY 6 PROJECT"]
-        c.setFont("Helvetica-Bold" if is_heading else "Helvetica", 6.5 if is_heading else 6.0)
-        c.setFillColor(colors.HexColor('#0f172a') if is_heading else colors.HexColor('#475569'))
-        c.drawString(c3_x + 3 * mm, y_content_top - 13 * mm - idx * 4.0 * mm, l)
-        
-    # C4: Applications & Limitations
-    c4_x = c3_x + col_w + 3 * mm
-    c.rect(c4_x, y_content_top - col_h, col_w, col_h, fill=0)
-    c.setFont("Helvetica-Bold", 8.5)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(c4_x + 3 * mm, y_content_top - 7 * mm, "C4 Applications & limitations")
-    
-    lines_c4 = [
-        "USE IT FOR",
-        "• Pre-lab briefing before thermal lab experiments",
-        "• Self-study, revision, and 3D exploration on phones",
-        "• Visualizing concealed internal cooling components",
-        "• Explaining refrigeration to non-specialists",
-        "",
-        "KEEP IN MIND",
-        "• Educational visualization — not manufacturing CAD",
-        "• Illustrative generic domestic proportions",
-        "• Flow animation is conceptual, not CFD simulation",
-        "• No proprietary brand specifications invented",
-        "• AR tracking relies on device ARCore / ARKit"
-    ]
-    for idx, l in enumerate(lines_c4):
-        is_heading = l in ["USE IT FOR", "KEEP IN MIND"]
-        c.setFont("Helvetica-Bold" if is_heading else "Helvetica", 6.8 if is_heading else 6.2)
-        c.setFillColor(colors.HexColor('#0284c7' if l == "USE IT FOR" else '#ea580c') if is_heading else colors.HexColor('#334155'))
-        c.drawString(c4_x + 3 * mm, y_content_top - 14 * mm - idx * 4.4 * mm, l)
-        
-    # Bottom Row: 4 Application Screenshots / Mockup Figures
-    fig_y_top = y_content_top - col_h - 6 * mm
-    fig_h = 100 * mm
-    fig_w = col_w
-    
-    figs = [
-        ("FIG. 3A · WEB EXPLORER (DESKTOP)", os.path.join(RENDERS_DIR, 'fig3a_web_explorer.png')),
-        ("FIG. 3B · REAR MACHINERY ISOLATE", os.path.join(RENDERS_DIR, 'fig1b_rear_machinery.png')),
-        ("FIG. 3C · AR ROOM PLACEMENT", os.path.join(RENDERS_DIR, 'fig3c_ar_page.png')),
-        ("FIG. 3D · ASSEMBLED FRONT VIEW", os.path.join(RENDERS_DIR, 'fig1a_front_open.png'))
-    ]
-    
-    for i, (f_title, f_path) in enumerate(figs):
-        fx = x0 + i * (fig_w + 3 * mm)
-        c.rect(fx, fig_y_top - fig_h, fig_w, fig_h, fill=0)
-        c.setFillColor(colors.HexColor('#f1f5f9'))
-        c.rect(fx, fig_y_top - 6 * mm, fig_w, 6 * mm, fill=1, stroke=0)
-        c.setFont("Helvetica-Bold", 7)
-        c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(fx + 2 * mm, fig_y_top - 4.2 * mm, f_title)
-        
-        if os.path.exists(f_path):
-            c.drawImage(f_path, fx + 2 * mm, fig_y_top - fig_h + 3 * mm, width=fig_w - 4 * mm, height=fig_h - 11 * mm, preserveAspectRatio=True)
+    c1_text = (
+        "Students learn the vapour compression cycle as a theoretical four-stage schematic, "
+        "but a domestic refrigerator is a complex machine with hidden coils, capillary lines, "
+        "and foamed insulation.\n\n"
+        "This project bridges the gap: every component can be tapped to inspect its thermodynamic function, "
+        "the door opens smoothly on dual hinge pivots, and the life-size refrigerator can be placed in AR on "
+        "a real floor or table — with zero app installation.\n\n"
+        "• Identify the 4 core cycle components in 3D.\n"
+        "• Trace high-pressure and low-pressure sides.\n"
+        "• Walk around the virtual appliance in life-size AR.\n"
+        "• Relate physical layout to the p–h diagram."
+    )
+    c.setFont("Helvetica", 6.5)
+    c.setFillColor(colors.HexColor('#334155'))
+    ty = top_y + top_h - 16 * mm
+    for line in c1_text.split('\n'):
+        if line == '':
+            ty -= 2.5 * mm
+        else:
+            c.drawString(c1_x + 4 * mm, ty, line)
+            ty -= 3.8 * mm
             
+    # Card C2: Implementation architecture
+    c2_x = c1_x + col_w + 6 * mm
+    draw_card_box(c, c2_x, top_y, col_w, top_h)
+    
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.roundRect(c2_x + 4 * mm, top_y + top_h - 8 * mm, 6 * mm, 5 * mm, 1 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
+    c.setFillColor(colors.white)
+    c.drawCentredString(c2_x + 7 * mm, top_y + top_h - 6.5 * mm, "C2")
+    c.setFont("Helvetica-Bold", 8.5)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(c2_x + 12 * mm, top_y + top_h - 6.8 * mm, "Implementation architecture")
+    
+    # Architecture Flowchart Blocks
+    flow_y = top_y + top_h - 22 * mm
+    # 1. Blender Generator Box
+    c.setFillColor(colors.HexColor('#070d1e'))
+    c.roundRect(c2_x + 6 * mm, flow_y, col_w - 12 * mm, 10 * mm, 2 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.5)
+    c.setFillColor(colors.HexColor('#00e5ff'))
+    c.drawCentredString(c2_x + col_w / 2, flow_y + 4 * mm, "generate_refrigerator_model.py (Blender)")
+    c.setFont("Helvetica", 5.5)
+    c.setFillColor(colors.HexColor('#94a3b8'))
+    c.drawCentredString(c2_x + col_w / 2, flow_y + 1.5 * mm, "Python procedural geometry & dual pivots")
+    
+    # Arrow
+    c.setStrokeColor(colors.HexColor('#0f172a'))
+    c.line(c2_x + col_w / 2, flow_y, c2_x + col_w / 2, flow_y - 4 * mm)
+    
+    # 2. glTF 2.0 Asset Box
+    flow_y -= 14 * mm
+    c.setFillColor(colors.HexColor('#ea580c'))
+    c.roundRect(c2_x + 10 * mm, flow_y, col_w - 20 * mm, 9 * mm, 2 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
+    c.setFillColor(colors.white)
+    c.drawCentredString(c2_x + col_w / 2, flow_y + 4 * mm, "Domestic_Refrigerator.glb")
+    c.setFont("Helvetica", 5.5)
+    c.drawCentredString(c2_x + col_w / 2, flow_y + 1.5 * mm, "Khronos Validated glTF 2.0 Asset")
+    
+    # 3 Branches: Website, WebAR, Unity
+    flow_y -= 16 * mm
+    c.setFillColor(colors.white)
+    c.setStrokeColor(colors.HexColor('#1e2e5c'))
+    c.setLineWidth(0.8)
+    # Web Explorer box
+    c.roundRect(c2_x + 4 * mm, flow_y, (col_w - 12 * mm) / 2, 11 * mm, 1 * mm, fill=1, stroke=1)
+    c.setFont("Helvetica-Bold", 6.2)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawCentredString(c2_x + 4 * mm + (col_w - 12 * mm) / 4, flow_y + 6 * mm, "Web Explorer")
+    c.setFont("Helvetica", 5.5)
+    c.setFillColor(colors.HexColor('#64748b'))
+    c.drawCentredString(c2_x + 4 * mm + (col_w - 12 * mm) / 4, flow_y + 2.5 * mm, "React 19 · Three.js")
+    
+    # WebAR Box
+    c.roundRect(c2_x + 6 * mm + (col_w - 12 * mm) / 2, flow_y, (col_w - 12 * mm) / 2, 11 * mm, 1 * mm, fill=1, stroke=1)
+    c.setFont("Helvetica-Bold", 6.2)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawCentredString(c2_x + 6 * mm + 3 * (col_w - 12 * mm) / 4, flow_y + 6 * mm, "WebAR Engine")
+    c.setFont("Helvetica", 5.5)
+    c.setFillColor(colors.HexColor('#64748b'))
+    c.drawCentredString(c2_x + 6 * mm + 3 * (col_w - 12 * mm) / 4, flow_y + 2.5 * mm, "SceneViewer / QuickLook")
+    
+    # Bottom sync text
+    c.setFont("Helvetica", 6.0)
+    c.setFillColor(colors.HexColor('#64748b'))
+    c.drawString(c2_x + 4 * mm, top_y + 8 * mm, "Single shared JSON dataset drives website,")
+    c.drawString(c2_x + 4 * mm, top_y + 4.5 * mm, "Unity app, and poster for 100% data agreement.")
+    
+    # Card C3: How it works
+    c3_x = c2_x + col_w + 6 * mm
+    draw_card_box(c, c3_x, top_y, col_w, top_h)
+    
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.roundRect(c3_x + 4 * mm, top_y + top_h - 8 * mm, 6 * mm, 5 * mm, 1 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
+    c.setFillColor(colors.white)
+    c.drawCentredString(c3_x + 7 * mm, top_y + top_h - 6.5 * mm, "C3")
+    c.setFont("Helvetica-Bold", 8.5)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(c3_x + 12 * mm, top_y + top_h - 6.8 * mm, "How it works")
+    
+    c3_items = [
+        ("3D MODEL", "Procedural geometry (compressor shell, swept copper tubing, serpentine condenser, evaporator fins) with dual animated door hinges exported to glTF 2.0."),
+        ("WEB EXPLORER", "Interactive tap/click raycast picking, single-part highlight, ghosted isolate mode, explode slider, cycle flow pulse animation, and full component library modal."),
+        ("AUGMENTED REALITY", "Zero-install WebAR: WebXR & Scene Viewer on ARCore Android; AR Quick Look on iOS. Live camera overlay fallback on desktops & laptops."),
+        ("UNITY 6 PROJECT", "URP scenes: MainMenu, RefrigeratorExplorer, and AR Foundation scene for optional native builds.")
+    ]
+    ty = top_y + top_h - 16 * mm
+    for header, desc in c3_items:
+        c.setFont("Helvetica-Bold", 6.5)
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.drawString(c3_x + 4 * mm, ty, header)
+        ty -= 3.5 * mm
+        c.setFont("Helvetica", 6.2)
+        c.setFillColor(colors.HexColor('#475569'))
+        c.drawString(c3_x + 4 * mm, ty, desc[:62] + ("..." if len(desc) > 62 else ""))
+        ty -= 3.5 * mm
+        c.drawString(c3_x + 4 * mm, ty, desc[62:124] + ("..." if len(desc) > 124 else ""))
+        ty -= 5.0 * mm
+
+    # Card C4: Applications & limitations
+    c4_x = c3_x + col_w + 6 * mm
+    draw_card_box(c, c4_x, top_y, col_w, top_h)
+    
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.roundRect(c4_x + 4 * mm, top_y + top_h - 8 * mm, 6 * mm, 5 * mm, 1 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
+    c.setFillColor(colors.white)
+    c.drawCentredString(c4_x + 7 * mm, top_y + top_h - 6.5 * mm, "C4")
+    c.setFont("Helvetica-Bold", 8.5)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.drawString(c4_x + 12 * mm, top_y + top_h - 6.8 * mm, "Applications & limitations")
+    
+    c4_text = (
+        "USE IT FOR\n"
+        "• Pre-lab briefing before thermal lab experiments\n"
+        "• Self-study, revision, and 3D exploration on phones\n"
+        "• Visualizing concealed internal cooling components\n"
+        "• Explaining refrigeration to non-specialists\n\n"
+        "KEEP IN MIND\n"
+        "• Educational visualization — not manufacturing CAD\n"
+        "• Illustrative generic domestic proportions\n"
+        "• Flow animation is conceptual, not CFD simulation\n"
+        "• No proprietary brand specifications invented\n"
+        "• AR tracking relies on device ARCore / ARKit"
+    )
+    ty = top_y + top_h - 16 * mm
+    for line in c4_text.split('\n'):
+        if line.startswith('USE IT FOR') or line.startswith('KEEP IN MIND'):
+            c.setFont("Helvetica-Bold", 6.8)
+            c.setFillColor(colors.HexColor('#0284c7') if 'USE' in line else colors.HexColor('#ea580c'))
+            c.drawString(c4_x + 4 * mm, ty, line)
+            ty -= 3.8 * mm
+        elif line == '':
+            ty -= 2.0 * mm
+        else:
+            c.setFont("Helvetica", 6.2)
+            c.setFillColor(colors.HexColor('#334155'))
+            c.drawString(c4_x + 4 * mm, ty, line)
+            ty -= 3.8 * mm
+
+    # ---------------------------------------------------------------------
+    # Bottom Row: 4 Application Screenshot Cards
+    # ---------------------------------------------------------------------
+    bot_h = 94 * mm
+    bot_y = top_y - 6 * mm - bot_h
+    
+    # Fig 3A: Web Explorer (Desktop)
+    draw_card_box(c, c1_x, bot_y, col_w, bot_h, "FIG. 3A · WEB EXPLORER (DESKTOP)")
+    fig3a_img = os.path.join(RENDERS_DIR, 'fig3a_web_explorer.png')
+    if os.path.exists(fig3a_img):
+        c.drawImage(fig3a_img, c1_x + 4 * mm, bot_y + 4 * mm, width=col_w - 8 * mm, height=bot_h - 12 * mm, preserveAspectRatio=True)
+        
+    # Fig 3C: AR Page
+    draw_card_box(c, c2_x, bot_y, col_w, bot_h, "FIG. 3C · AR PAGE")
+    fig3c_img = os.path.join(RENDERS_DIR, 'fig3c_ar_page.png')
+    if os.path.exists(fig3c_img):
+        c.drawImage(fig3c_img, c2_x + 4 * mm, bot_y + 4 * mm, width=col_w - 8 * mm, height=bot_h - 12 * mm, preserveAspectRatio=True)
+        
+    # Fig 3B: Phone View
+    draw_card_box(c, c3_x, bot_y, col_w, bot_h, "FIG. 3B · PHONE VIEW")
+    fig3b_img = os.path.join(RENDERS_DIR, 'fig3b_phone_view.png')
+    if os.path.exists(fig3b_img):
+        c.drawImage(fig3b_img, c3_x + 4 * mm, bot_y + 4 * mm, width=col_w - 8 * mm, height=bot_h - 12 * mm, preserveAspectRatio=True)
+        
+    # Fig 3D: 3D Cycle Mode
+    draw_card_box(c, c4_x, bot_y, col_w, bot_h, "FIG. 3D · 3D CYCLE MODE")
+    fig3d_img = os.path.join(RENDERS_DIR, 'fig3d_cycle_mode.png')
+    if os.path.exists(fig3d_img):
+        c.drawImage(fig3d_img, c4_x + 4 * mm, bot_y + 4 * mm, width=col_w - 8 * mm, height=bot_h - 12 * mm, preserveAspectRatio=True)
+        
     c.showPage()
 
 # =========================================================================
-# PAGE 4: SCAN AND EXPLORE
+# PAGE 4: SCAN · EXPLORE (QR CODES & PROJECT METADATA)
 # =========================================================================
 def build_page_4(c):
     draw_engineering_frame(c, 4)
@@ -723,134 +820,142 @@ def build_page_4(c):
     x0 = 18 * mm
     y_content_top = PAGE_H - 48 * mm
     
-    # Left Box: CODE 1 · AR
-    ar_box_w = 185 * mm
-    ar_box_h = 115 * mm
-    ar_box_x = x0
-    ar_box_y = y_content_top - ar_box_h
+    # ---------------------------------------------------------------------
+    # Top Row: Two Large QR Cards (AR on Left, Web Explorer on Right)
+    # ---------------------------------------------------------------------
+    qr_card_w = 188 * mm
+    qr_card_h = 125 * mm
+    qr_card_y = y_content_top - qr_card_h
     
-    c.setStrokeColor(colors.HexColor('#cbd5e1'))
-    c.rect(ar_box_x, ar_box_y, ar_box_w, ar_box_h, fill=0)
+    # Card 1: AUGMENTED REALITY
+    draw_card_box(c, x0, qr_card_y, qr_card_w, qr_card_h)
     
-    # Red top pill
+    # Red Banner Pill
     c.setFillColor(colors.HexColor('#dc2626'))
-    c.rect(ar_box_x, ar_box_y + ar_box_h - 5 * mm, 45 * mm, 5 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7)
+    c.rect(x0, qr_card_y + qr_card_h - 6 * mm, 45 * mm, 6 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
     c.setFillColor(colors.white)
-    c.drawString(ar_box_x + 2 * mm, ar_box_y + ar_box_h - 3.8 * mm, "AUGMENTED REALITY")
+    c.drawString(x0 + 4 * mm, qr_card_y + qr_card_h - 4.2 * mm, "AUGMENTED REALITY")
     
-    # Large QR Code
-    qr_sz = 65 * mm
+    # Big AR QR Code
     qr_ar_img = os.path.join(RENDERS_DIR, 'qr_ar_view.png')
+    big_qr_size = 62 * mm
+    big_qr_x = x0 + 10 * mm
+    big_qr_y = qr_card_y + 24 * mm
     if os.path.exists(qr_ar_img):
-        c.drawImage(qr_ar_img, ar_box_x + 8 * mm, ar_box_y + 20 * mm, width=qr_sz, height=qr_sz)
+        c.drawImage(qr_ar_img, big_qr_x, big_qr_y, width=big_qr_size, height=big_qr_size)
         
-    # Steps
-    tx = ar_box_x + qr_sz + 16 * mm
-    ty = ar_box_y + ar_box_h - 15 * mm
-    
+    # AR Text Content
+    ar_tx = big_qr_x + big_qr_size + 10 * mm
     c.setFont("Helvetica-Bold", 7.5)
     c.setFillColor(colors.HexColor('#dc2626'))
-    c.drawString(tx, ty, "CODE 1 · AR")
-    c.setFont("Helvetica-Bold", 16)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(tx, ty - 8 * mm, "The fridge, in")
-    c.drawString(tx, ty - 15 * mm, "your room")
+    c.drawString(ar_tx, qr_card_y + qr_card_h - 18 * mm, "CODE 1 · AR")
+    
+    c.setFont("Helvetica-Bold", 17)
+    c.setFillColor(colors.HexColor('#070d1e'))
+    c.drawString(ar_tx, qr_card_y + qr_card_h - 26 * mm, "The fridge, in")
+    c.drawString(ar_tx, qr_card_y + qr_card_h - 33 * mm, "your room")
     
     c.setFont("Helvetica", 7.5)
     c.setFillColor(colors.HexColor('#334155'))
-    c.drawString(tx, ty - 22 * mm, "Place the refrigerator on a real floor or table")
-    c.drawString(tx, ty - 26 * mm, "at life size, open the doors, and walk around it.")
+    c.drawString(ar_tx, qr_card_y + qr_card_h - 40 * mm, "Place the refrigerator on a real floor or table")
+    c.drawString(ar_tx, qr_card_y + qr_card_h - 44.5 * mm, "at life size, open the doors, and walk around it.")
     
+    # Step instructions
     steps_ar = [
         ("01", "Scan, then tap View in your space."),
         ("02", "Move the phone slowly over a floor or table."),
         ("03", "Walk around it; tap Open Doors to see inside.")
     ]
-    for idx, (num, st) in enumerate(steps_ar):
-        sy = ty - 34 * mm - idx * 8 * mm
-        c.rect(tx, sy, 6 * mm, 5 * mm, fill=0)
+    for idx, (badge, text) in enumerate(steps_ar):
+        sy = qr_card_y + qr_card_h - 54 * mm - idx * 7.5 * mm
+        c.setStrokeColor(colors.HexColor('#dc2626'))
+        c.setLineWidth(0.8)
+        c.roundRect(ar_tx, sy, 7 * mm, 5 * mm, 1 * mm, fill=0, stroke=1)
         c.setFont("Helvetica-Bold", 6.5)
         c.setFillColor(colors.HexColor('#dc2626'))
-        c.drawCentredString(tx + 3 * mm, sy + 1.5 * mm, num)
-        c.setFont("Helvetica", 7)
+        c.drawCentredString(ar_tx + 3.5 * mm, sy + 1.2 * mm, badge)
+        
+        c.setFont("Helvetica", 7.0)
         c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(tx + 8 * mm, sy + 1.5 * mm, st)
+        c.drawString(ar_tx + 10 * mm, sy + 1.2 * mm, text)
         
-    c.setFont("Helvetica", 6.5)
+    # Direct AR URL
+    c.setFont("Helvetica-Bold", 6.2)
     c.setFillColor(colors.HexColor('#64748b'))
-    c.drawString(tx, ty - 60 * mm, "Android: Chrome with Google Play Services for AR (ARCore).")
-    c.drawString(tx, ty - 64 * mm, "iPhone/iPad: Safari with AR Quick Look.")
-    c.drawString(tx, ty - 68 * mm, "Camera permission asked only when AR starts.")
+    c.drawString(big_qr_x, qr_card_y + 12 * mm, "OR TYPE URL:")
+    c.setFont("Helvetica-Bold", 7.0)
+    c.setFillColor(colors.HexColor('#070d1e'))
+    c.drawString(big_qr_x, qr_card_y + 7 * mm, "https://sahilpanchavishe.github.io/Domestic-Refrigerator-AR-Explorer/#ar")
+
+    # Card 2: WEB EXPLORER
+    card2_x = x0 + qr_card_w + 8 * mm
+    card2_w = PAGE_W - 18 * mm - card2_x
+    draw_card_box(c, card2_x, qr_card_y, card2_w, qr_card_h)
     
-    # Right Box: CODE 2 · WEB
-    web_box_w = 185 * mm
-    web_box_h = 115 * mm
-    web_box_x = ar_box_x + ar_box_w + 10 * mm
-    web_box_y = ar_box_y
-    
-    c.rect(web_box_x, web_box_y, web_box_w, web_box_h, fill=0)
-    
-    # Cyan top pill
+    # Blue Banner Pill
     c.setFillColor(colors.HexColor('#0284c7'))
-    c.rect(web_box_x, web_box_y + web_box_h - 5 * mm, 45 * mm, 5 * mm, fill=1, stroke=0)
-    c.setFont("Helvetica-Bold", 7)
+    c.rect(card2_x, qr_card_y + qr_card_h - 6 * mm, 38 * mm, 6 * mm, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 6.8)
     c.setFillColor(colors.white)
-    c.drawString(web_box_x + 2 * mm, web_box_y + web_box_h - 3.8 * mm, "WEB EXPLORER")
+    c.drawString(card2_x + 4 * mm, qr_card_y + qr_card_h - 4.2 * mm, "WEB EXPLORER")
     
+    # Big Web QR Code
     qr_web_img = os.path.join(RENDERS_DIR, 'qr_web_explorer.png')
+    big_web_x = card2_x + 10 * mm
     if os.path.exists(qr_web_img):
-        c.drawImage(qr_web_img, web_box_x + 8 * mm, web_box_y + 20 * mm, width=qr_sz, height=qr_sz)
+        c.drawImage(qr_web_img, big_web_x, big_qr_y, width=big_qr_size, height=big_qr_size)
         
-    # Steps
-    tx2 = web_box_x + qr_sz + 16 * mm
-    ty2 = web_box_y + web_box_h - 15 * mm
-    
+    # Web Text Content
+    web_tx = big_web_x + big_qr_size + 10 * mm
     c.setFont("Helvetica-Bold", 7.5)
     c.setFillColor(colors.HexColor('#0284c7'))
-    c.drawString(tx2, ty2, "CODE 2 · WEB")
-    c.setFont("Helvetica-Bold", 16)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(tx2, ty2 - 8 * mm, "The whole")
-    c.drawString(tx2, ty2 - 15 * mm, "appliance, interactive")
+    c.drawString(web_tx, qr_card_y + qr_card_h - 18 * mm, "CODE 2 · WEB")
+    
+    c.setFont("Helvetica-Bold", 17)
+    c.setFillColor(colors.HexColor('#070d1e'))
+    c.drawString(web_tx, qr_card_y + qr_card_h - 26 * mm, "The whole")
+    c.drawString(web_tx, qr_card_y + qr_card_h - 33 * mm, "appliance, interactive")
     
     c.setFont("Helvetica", 7.5)
     c.setFillColor(colors.HexColor('#334155'))
-    c.drawString(tx2, ty2 - 22 * mm, "Rotate the refrigerator in 3D, tap any of the")
-    c.drawString(tx2, ty2 - 26 * mm, "13 parts, open doors, and read the specifications.")
+    c.drawString(web_tx, qr_card_y + qr_card_h - 40 * mm, "Rotate the refrigerator in 3D, tap any of the")
+    c.drawString(web_tx, qr_card_y + qr_card_h - 44.5 * mm, "13 parts, open doors, and read the specifications.")
     
     steps_web = [
         ("01", "Scan to open the 3D explorer in browser."),
         ("02", "Tap compressor, condenser, valve or coils."),
         ("03", "Toggle Open Doors or drag Explode slider.")
     ]
-    for idx, (num, st) in enumerate(steps_web):
-        sy = ty2 - 34 * mm - idx * 8 * mm
-        c.rect(tx2, sy, 6 * mm, 5 * mm, fill=0)
+    for idx, (badge, text) in enumerate(steps_web):
+        sy = qr_card_y + qr_card_h - 54 * mm - idx * 7.5 * mm
+        c.setStrokeColor(colors.HexColor('#0284c7'))
+        c.setLineWidth(0.8)
+        c.roundRect(web_tx, sy, 7 * mm, 5 * mm, 1 * mm, fill=0, stroke=1)
         c.setFont("Helvetica-Bold", 6.5)
         c.setFillColor(colors.HexColor('#0284c7'))
-        c.drawCentredString(tx2 + 3 * mm, sy + 1.5 * mm, num)
-        c.setFont("Helvetica", 7)
-        c.setFillColor(colors.HexColor('#0f172a'))
-        c.drawString(tx2 + 8 * mm, sy + 1.5 * mm, st)
+        c.drawCentredString(web_tx + 3.5 * mm, sy + 1.2 * mm, badge)
         
-    c.setFont("Helvetica", 6.5)
+        c.setFont("Helvetica", 7.0)
+        c.setFillColor(colors.HexColor('#0f172a'))
+        c.drawString(web_tx + 10 * mm, sy + 1.2 * mm, text)
+        
+    c.setFont("Helvetica-Bold", 6.2)
     c.setFillColor(colors.HexColor('#64748b'))
-    c.drawString(tx2, ty2 - 60 * mm, "Works in modern browsers on phones, tablets & laptops.")
-    c.drawString(tx2, ty2 - 64 * mm, "Nothing to install · Pure WebGL & WebXR.")
-    c.drawString(tx2, ty2 - 68 * mm, "Touch & mouse gestures for orbit, pan and zoom.")
+    c.drawString(big_web_x, qr_card_y + 12 * mm, "OR TYPE URL:")
+    c.setFont("Helvetica-Bold", 7.0)
+    c.setFillColor(colors.HexColor('#070d1e'))
+    c.drawString(big_web_x, qr_card_y + 7 * mm, "https://sahilpanchavishe.github.io/Domestic-Refrigerator-AR-Explorer/")
+
+    # ---------------------------------------------------------------------
+    # Lower Section: Project Details (Left) & References & Credits (Right)
+    # ---------------------------------------------------------------------
+    bot_y_top = qr_card_y - 6 * mm
+    bot_h = 70 * mm
+    bot_y = bot_y_top - bot_h
     
-    # Lower Section: Project Details (Left) and References & Credits (Right)
-    low_y_top = ar_box_y - 6 * mm
-    low_h = 80 * mm
-    low_w1 = 185 * mm
-    low_w2 = 185 * mm
-    
-    # Project Details
-    c.rect(x0, low_y_top - low_h, low_w1, low_h, fill=0)
-    c.setFont("Helvetica-Bold", 9)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(x0 + 3 * mm, low_y_top - 6 * mm, "Project")
+    # Project Details Card
+    draw_card_box(c, x0, bot_y, qr_card_w, bot_h, "Project")
     
     proj_rows = [
         ("TITLE", "Domestic Refrigerator AR Explorer — Interactive 3D & AR"),
@@ -859,31 +964,33 @@ def build_page_4(c):
         ("GUIDE", "Dr. Shubhangi Deshmukh"),
         ("INSTITUTION", "Department of Robotics & AI, COEP Technological University, Pune")
     ]
-    
-    curr_y = low_y_top - 14 * mm
+    py = bot_y + bot_h - 14 * mm
     for lbl, val in proj_rows:
-        c.setFont("Helvetica-Bold", 7)
-        c.setFillColor(colors.HexColor('#475569'))
-        c.drawString(x0 + 4 * mm, curr_y, lbl)
-        c.setFont("Helvetica-Bold", 7.5)
+        c.setFont("Helvetica-Bold", 6.8)
+        c.setFillColor(colors.HexColor('#64748b'))
+        c.drawString(x0 + 4 * mm, py, lbl)
+        
+        c.setStrokeColor(colors.HexColor('#cbd5e1'))
+        c.setLineWidth(0.5)
+        c.setDash([1, 2], 0)
+        c.line(x0 + 24 * mm, py + 1 * mm, x0 + 36 * mm, py + 1 * mm)
+        c.setDash([], 0)
+        
+        c.setFont("Helvetica-Bold" if lbl == "TEAM" else "Helvetica", 6.8)
         c.setFillColor(colors.HexColor('#0f172a'))
-        if "\n" in val:
-            v1, v2 = val.split("\n")
-            c.drawString(x0 + 28 * mm, curr_y, v1)
-            c.drawString(x0 + 28 * mm, curr_y - 3.8 * mm, v2)
-            curr_y -= 8.5 * mm
+        if '\n' in val:
+            v1, v2 = val.split('\n')
+            c.drawString(x0 + 38 * mm, py + 1.5 * mm, v1)
+            c.drawString(x0 + 38 * mm, py - 2.5 * mm, v2)
+            py -= 8.5 * mm
         else:
-            c.drawString(x0 + 28 * mm, curr_y, val)
-            curr_y -= 6.5 * mm
-            
-    # References & Credits
-    ref_x = x0 + low_w1 + 10 * mm
-    c.rect(ref_x, low_y_top - low_h, low_w2, low_h, fill=0)
-    c.setFont("Helvetica-Bold", 9)
-    c.setFillColor(colors.HexColor('#0f172a'))
-    c.drawString(ref_x + 3 * mm, low_y_top - 6 * mm, "References & credits")
+            c.drawString(x0 + 38 * mm, py, val)
+            py -= 7.0 * mm
+
+    # References & Credits Card
+    draw_card_box(c, card2_x, bot_y, card2_w, bot_h, "References & credits")
     
-    ref_lines = [
+    refs = [
         "• C. P. Arora, Refrigeration and Air Conditioning, 3rd ed., McGraw-Hill, 2008.",
         "• W. F. Stoecker & J. W. Jones, Refrigeration and Air Conditioning, McGraw-Hill.",
         "• Y. A. Çengel & M. A. Boles, Thermodynamics: An Engineering Approach, McGraw-Hill.",
@@ -893,14 +1000,16 @@ def build_page_4(c):
         "• 3D Model: Original procedural educational visualization created via Blender 5.2 Python API.",
         "• Validation: Khronos Group glTF-Validator 2.0 (0 errors, 0 warnings)."
     ]
-    for idx, rl in enumerate(ref_lines):
-        c.setFont("Helvetica", 6.8)
-        c.setFillColor(colors.HexColor('#334155'))
-        c.drawString(ref_x + 3 * mm, low_y_top - 14 * mm - idx * 5.2 * mm, rl)
+    ry = bot_y + bot_h - 13 * mm
+    c.setFont("Helvetica", 6.2)
+    c.setFillColor(colors.HexColor('#334155'))
+    for ref in refs:
+        c.drawString(card2_x + 4 * mm, ry, ref)
+        ry -= 4.4 * mm
         
     c.showPage()
 
-def generate_pdf():
+def main():
     print(f"Generating 4-page A3 landscape PDF: {PDF_PATH}")
     c = canvas.Canvas(PDF_PATH, pagesize=landscape(A3))
     
@@ -913,4 +1022,4 @@ def generate_pdf():
     print("SUCCESS: 4-Page A3 Landscape Technical Poster generated successfully!")
 
 if __name__ == '__main__':
-    generate_pdf()
+    main()
