@@ -27,10 +27,6 @@ def generate_ph_diagram():
     ax.plot(h_vap, p_vap, color='#0369a1', linewidth=2.5, label='Saturated Vapour')
     
     # Cycle points: 1 (Evap exit), 2 (Comp exit), 3 (Cond exit), 4 (Capillary exit)
-    # 1: h=395, p=1.2
-    # 2: h=440, p=10.5
-    # 3: h=240, p=10.5
-    # 4: h=240, p=1.2
     p1, h1 = 1.2, 395
     p2, h2 = 10.5, 440
     p3, h3 = 10.5, 240
@@ -42,29 +38,29 @@ def generate_ph_diagram():
     ax.plot([h3, h4], [p3, p4], color='#0284c7', linewidth=2.8, linestyle='--', label='3→4 Throttling (Capillary)')
     ax.plot([h4, h1], [p4, p1], color='#0ea5e9', linewidth=2.8, label='4→1 Evaporation')
     
-    # State point circles & labels
-    points = [(h1, p1, '1 (LP Vapour)', '#0284c7', (-25, -15)),
-              (h2, p2, '2 (HP Hot Gas)', '#dc2626', (10, 5)),
-              (h3, p3, '3 (HP Subcooled Liq)', '#ea580c', (-110, 8)),
-              (h4, p4, '4 (LP Cold Mix)', '#0ea5e9', (-105, -15))]
+    # State point circles & labels with safe non-overlapping offsets
+    points = [(h1, p1, '1 (LP Vapour)', '#0284c7', (-15, -18)),
+              (h2, p2, '2 (HP Hot Gas)', '#dc2626', (10, 2)),
+              (h3, p3, '3 (HP Subcooled Liq)', '#ea580c', (-115, 6)),
+              (h4, p4, '4 (LP Cold Mix)', '#0ea5e9', (-100, -18))]
               
     for h, p, label, col, offset in points:
         ax.plot(h, p, 'o', markersize=8, color=col, markeredgecolor='black', markeredgewidth=1.2)
         ax.annotate(label, (h, p), textcoords="offset points", xytext=offset,
-                    fontweight='bold', fontsize=9, color='#0f172a')
+                    fontweight='bold', fontsize=8.5, color='#0f172a')
                     
-    # Annotations
-    ax.text(280, 11.2, 'Q_out (Heat Rejected to Room)', color='#ea580c', fontweight='bold', fontsize=10, ha='center')
-    ax.text(320, 0.75, 'Q_in (Heat Absorbed from Food)', color='#0284c7', fontweight='bold', fontsize=10, ha='center')
-    ax.text(425, 4.5, 'W_in (Compressor Work)', color='#dc2626', fontweight='bold', fontsize=9, rotation=55)
-    ax.text(205, 5.0, 'Capillary Tube (h3 = h4)', color='#0369a1', fontweight='bold', fontsize=8.5, rotation=90)
+    # Annotations positioned cleanly
+    ax.text(320, 12.5, 'Q_out (Heat Rejected to Room)', color='#ea580c', fontweight='bold', fontsize=9.5, ha='center')
+    ax.text(320, 0.65, 'Q_in (Heat Absorbed from Food)', color='#0284c7', fontweight='bold', fontsize=9.5, ha='center')
+    ax.text(420, 4.0, 'W_in (Compressor Work)', color='#dc2626', fontweight='bold', fontsize=8.5, rotation=52)
+    ax.text(225, 4.0, 'Capillary Tube\n(h3 = h4)', color='#0369a1', fontweight='bold', fontsize=8, ha='center')
     
     ax.set_yscale('log')
-    ax.set_ylim(0.5, 20)
-    ax.set_xlim(120, 480)
-    ax.set_xlabel('Specific Enthalpy h [kJ/kg] →', fontweight='bold', fontsize=10)
-    ax.set_ylabel('Pressure p [bar] (log scale) →', fontweight='bold', fontsize=10)
-    ax.set_title('FIG. 2B · p–h DIAGRAM (DOMESTIC REFRIGERATOR VCR CYCLE)', fontweight='bold', fontsize=11, pad=12)
+    ax.set_ylim(0.5, 22)
+    ax.set_xlim(110, 490)
+    ax.set_xlabel('Specific Enthalpy h [kJ/kg] →', fontweight='bold', fontsize=9.5)
+    ax.set_ylabel('Pressure p [bar] (log scale) →', fontweight='bold', fontsize=9.5)
+    ax.set_title('FIG. 2B · p–h DIAGRAM (DOMESTIC REFRIGERATOR VCR CYCLE)', fontweight='bold', fontsize=10.5, pad=12)
     ax.grid(True, which="both", ls=":", color="#cbd5e1")
     
     plt.tight_layout()
@@ -81,56 +77,55 @@ def generate_cycle_schematic():
     ax.set_ylim(0, 8)
     ax.axis('off')
     
-    # Boxes
     # Compressor (bottom-center)
-    comp_rect = patches.FancyBboxPatch((4.0, 0.8), 2.0, 1.3, boxstyle="round,pad=0.1", fc='#fee2e2', ec='#dc2626', lw=2)
+    comp_rect = patches.FancyBboxPatch((4.0, 0.6), 2.0, 1.3, boxstyle="round,pad=0.1", fc='#fee2e2', ec='#dc2626', lw=2)
     ax.add_patch(comp_rect)
-    ax.text(5.0, 1.45, '1 COMPRESSOR', ha='center', va='center', fontweight='bold', fontsize=10, color='#991b1b')
-    ax.text(5.0, 1.05, 'W_in (Electric Work)', ha='center', va='center', fontsize=8, color='#b91c1c')
+    ax.text(5.0, 1.3, '1 COMPRESSOR', ha='center', va='center', fontweight='bold', fontsize=10, color='#991b1b')
+    ax.text(5.0, 0.9, 'W_in (Electric Work)', ha='center', va='center', fontsize=8, color='#b91c1c')
     
     # Condenser (top)
-    cond_rect = patches.FancyBboxPatch((2.5, 5.8), 5.0, 1.4, boxstyle="round,pad=0.1", fc='#ffedd5', ec='#ea580c', lw=2)
+    cond_rect = patches.FancyBboxPatch((2.2, 5.9), 5.6, 1.4, boxstyle="round,pad=0.1", fc='#ffedd5', ec='#ea580c', lw=2)
     ax.add_patch(cond_rect)
-    ax.text(5.0, 6.6, '2 CONDENSER COIL', ha='center', va='center', fontweight='bold', fontsize=11, color='#9a3412')
-    ax.text(5.0, 6.1, 'Q_out (Heat Rejected to Kitchen Surroundings)', ha='center', va='center', fontsize=8.5, color='#c2410c')
+    ax.text(5.0, 6.7, '2 CONDENSER COIL', ha='center', va='center', fontweight='bold', fontsize=11, color='#9a3412')
+    ax.text(5.0, 6.2, 'Q_out (Heat Rejected to Kitchen Surroundings)', ha='center', va='center', fontsize=8.5, color='#c2410c')
     
     # Expansion device / Capillary Tube (left)
-    exp_rect = patches.FancyBboxPatch((0.5, 3.2), 2.2, 1.5, boxstyle="round,pad=0.1", fc='#e0f2fe', ec='#0284c7', lw=2)
+    exp_rect = patches.FancyBboxPatch((0.5, 3.1), 2.3, 1.5, boxstyle="round,pad=0.1", fc='#e0f2fe', ec='#0284c7', lw=2)
     ax.add_patch(exp_rect)
-    ax.text(1.6, 4.1, '3 CAPILLARY TUBE', ha='center', va='center', fontweight='bold', fontsize=9.5, color='#075985')
-    ax.text(1.6, 3.6, 'Throttling (h3 = h4)', ha='center', va='center', fontsize=8, color='#0369a1')
+    ax.text(1.65, 4.0, '3 CAPILLARY TUBE', ha='center', va='center', fontweight='bold', fontsize=9.5, color='#075985')
+    ax.text(1.65, 3.5, 'Throttling (h3 = h4)', ha='center', va='center', fontsize=8, color='#0369a1')
     
-    # Evaporator (bottom left/center)
-    evap_rect = patches.FancyBboxPatch((7.2, 3.2), 2.3, 1.5, boxstyle="round,pad=0.1", fc='#dbeafe', ec='#2563eb', lw=2)
+    # Evaporator (right)
+    evap_rect = patches.FancyBboxPatch((7.2, 3.1), 2.3, 1.5, boxstyle="round,pad=0.1", fc='#dbeafe', ec='#2563eb', lw=2)
     ax.add_patch(evap_rect)
-    ax.text(8.35, 4.1, '4 EVAPORATOR', ha='center', va='center', fontweight='bold', fontsize=10, color='#1e40af')
-    ax.text(8.35, 3.6, 'Q_in (Heat Absorbed)', ha='center', va='center', fontsize=8, color='#1d4ed8')
+    ax.text(8.35, 4.0, '4 EVAPORATOR', ha='center', va='center', fontweight='bold', fontsize=10, color='#1e40af')
+    ax.text(8.35, 3.5, 'Q_in (Heat Absorbed)', ha='center', va='center', fontsize=8, color='#1d4ed8')
     
-    # Arrows connecting cycle
+    # Arrows connecting cycle with clean non-overlapping labels
     # 1 -> 2: Compressor to Condenser (Hot Gas)
-    ax.annotate('', xy=(6.5, 5.8), xytext=(5.8, 2.1),
+    ax.annotate('', xy=(6.5, 5.9), xytext=(5.8, 1.9),
                 arrowprops=dict(arrowstyle="->", color='#dc2626', lw=2.5))
-    ax.text(6.8, 3.5, 'HP Hot Vapour (2)', color='#dc2626', fontweight='bold', fontsize=8.5, rotation=60)
+    ax.text(6.8, 2.7, 'HP Hot Vapour (2)', color='#dc2626', fontweight='bold', fontsize=8.5)
     
     # 2 -> 3: Condenser to Capillary Tube (Subcooled Liquid)
-    ax.annotate('', xy=(1.6, 4.7), xytext=(2.5, 6.2),
+    ax.annotate('', xy=(1.65, 4.6), xytext=(2.5, 6.1),
                 arrowprops=dict(arrowstyle="->", color='#ea580c', lw=2.5))
-    ax.text(1.3, 5.6, 'HP Liquid (3)', color='#ea580c', fontweight='bold', fontsize=8.5)
+    ax.text(1.1, 5.4, 'HP Liquid (3)', color='#ea580c', fontweight='bold', fontsize=8.5)
     
     # 3 -> 4: Capillary Tube to Evaporator (Cold Liquid-Vapour Mix)
-    ax.annotate('', xy=(7.2, 3.8), xytext=(2.7, 3.8),
+    ax.annotate('', xy=(7.2, 3.85), xytext=(2.8, 3.85),
                 arrowprops=dict(arrowstyle="->", color='#0284c7', lw=2.5, ls='--'))
-    ax.text(4.9, 4.1, 'LP Cold Liquid-Vapour Mixture (4)', color='#0284c7', fontweight='bold', fontsize=8.5, ha='center')
+    ax.text(5.0, 4.15, 'LP Cold Liquid-Vapour Mixture (4)', color='#0284c7', fontweight='bold', fontsize=8.5, ha='center')
     
     # 4 -> 1: Evaporator to Compressor (Suction Line)
-    ax.annotate('', xy=(4.2, 2.1), xytext=(7.5, 3.2),
+    ax.annotate('', xy=(4.5, 1.9), xytext=(7.5, 3.1),
                 arrowprops=dict(arrowstyle="->", color='#2563eb', lw=2.5))
-    ax.text(6.4, 2.3, 'LP Saturated/Superheated Vapour (1)', color='#2563eb', fontweight='bold', fontsize=8.5, rotation=-25)
+    ax.text(6.3, 2.0, 'LP Vapour Suction Line (1)', color='#2563eb', fontweight='bold', fontsize=8.5)
     
     # High pressure vs low pressure division line
     ax.axhline(y=4.95, color='#94a3b8', linestyle=':', linewidth=1.5)
     ax.text(0.6, 5.15, 'HIGH-PRESSURE CONDENSING SIDE', color='#b91c1c', fontweight='bold', fontsize=8)
-    ax.text(0.6, 2.7, 'LOW-PRESSURE EVAPORATING SIDE', color='#0369a1', fontweight='bold', fontsize=8)
+    ax.text(0.6, 2.6, 'LOW-PRESSURE EVAPORATING SIDE', color='#0369a1', fontweight='bold', fontsize=8)
     
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, 'fig2a_cycle_schematic.png'), dpi=300)

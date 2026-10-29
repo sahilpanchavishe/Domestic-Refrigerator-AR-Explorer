@@ -107,11 +107,28 @@ def draw_top_header(c, sheet_num, section_code, section_name, main_title, subtit
     c.drawString(qr_x + qr_w + 3 * mm, qr_y + 7 * mm, "Scan for interactive")
     c.drawString(qr_x + qr_w + 3 * mm, qr_y + 3.5 * mm, "web explorer & AR view.")
 
+def draw_callout_badge(c, bx, by, number, leader_from=None):
+    """Draws a professional circular callout badge with high-contrast border and optional leader line."""
+    if leader_from:
+        c.setStrokeColor(colors.HexColor('#0284c7'))
+        c.setLineWidth(1.0)
+        c.line(leader_from[0], leader_from[1], bx, by)
+    
+    # Outer white ring for clarity over dark or light renders
+    c.setStrokeColor(colors.white)
+    c.setLineWidth(1.2)
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.circle(bx, by, 3.4 * mm, fill=1, stroke=1)
+    
+    c.setFont("Helvetica-Bold", 7.2)
+    c.setFillColor(colors.white)
+    c.drawCentredString(bx, by - 1.0 * mm, str(number))
+
 def draw_bottom_title_block(c, title, sheet_num):
     """Draws ANSI/ISO standard engineering title block at bottom-right."""
     x_right = PAGE_W - 18 * mm
     y_bottom = 18 * mm
-    tb_w = 200 * mm
+    tb_w = 205 * mm
     tb_h = 16 * mm
     tb_x = x_right - tb_w
     
@@ -120,10 +137,10 @@ def draw_bottom_title_block(c, title, sheet_num):
     c.rect(tb_x, y_bottom, tb_w, tb_h)
     
     # Columns
-    col1_w = 80 * mm
-    col2_w = 55 * mm
-    col3_w = 45 * mm
-    col4_w = 20 * mm
+    col1_w = 88 * mm
+    col2_w = 52 * mm
+    col3_w = 47 * mm
+    col4_w = 18 * mm
     
     c.line(tb_x + col1_w, y_bottom, tb_x + col1_w, y_bottom + tb_h)
     c.line(tb_x + col1_w + col2_w, y_bottom, tb_x + col1_w + col2_w, y_bottom + tb_h)
@@ -133,7 +150,9 @@ def draw_bottom_title_block(c, title, sheet_num):
     c.setFont("Helvetica", 6)
     c.setFillColor(colors.HexColor('#64748b'))
     c.drawString(tb_x + 2 * mm, y_bottom + 12 * mm, "TITLE")
-    c.setFont("Helvetica-Bold", 9)
+    
+    title_font_size = 7.5 if len(title) > 35 else 8.5
+    c.setFont("Helvetica-Bold", title_font_size)
     c.setFillColor(colors.HexColor('#070d1e'))
     c.drawString(tb_x + 2 * mm, y_bottom + 5 * mm, title)
     
@@ -205,6 +224,13 @@ def build_page_1(c):
     if os.path.exists(fig1a_img):
         c.drawImage(fig1a_img, fig1a_x + 10 * mm, fig1a_y + 4 * mm, width=fig1a_w - 20 * mm, height=fig1a_h - 12 * mm, preserveAspectRatio=True)
         
+    # Fig 1A Engineering Callouts
+    draw_callout_badge(c, fig1a_x + 36 * mm, fig1a_y + 60 * mm, 10)  # Fresh Food Door
+    draw_callout_badge(c, fig1a_x + 148 * mm, fig1a_y + 65 * mm, 11) # Freezer Door
+    draw_callout_badge(c, fig1a_x + 115 * mm, fig1a_y + 88 * mm, 4)  # Evaporator Unit
+    draw_callout_badge(c, fig1a_x + 85 * mm, fig1a_y + 52 * mm, 9)   # Shelves & Crisper Drawers
+    draw_callout_badge(c, fig1a_x + 55 * mm, fig1a_y + 98 * mm, 8)   # Cabinet PUF Insulation
+        
     # Render 2: Exploded View / Rear Machinery
     fig1b_w = 190 * mm
     fig1b_h = 115 * mm
@@ -221,6 +247,15 @@ def build_page_1(c):
     fig1c_img = os.path.join(RENDERS_DIR, 'fig1c_exploded.png')
     if os.path.exists(fig1c_img):
         c.drawImage(fig1c_img, fig1b_x + 10 * mm, fig1b_y + 4 * mm, width=fig1b_w - 20 * mm, height=fig1b_h - 12 * mm, preserveAspectRatio=True)
+        
+    # Fig 1B Engineering Callouts
+    draw_callout_badge(c, fig1b_x + 48 * mm, fig1b_y + 24 * mm, 1)   # Compressor
+    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 20 * mm, 6)   # Condenser Fan
+    draw_callout_badge(c, fig1b_x + 100 * mm, fig1b_y + 36 * mm, 5)  # Filter-Drier
+    draw_callout_badge(c, fig1b_x + 58 * mm, fig1b_y + 44 * mm, 7)   # Refrigerant Lines
+    draw_callout_badge(c, fig1b_x + 106 * mm, fig1b_y + 58 * mm, 3)  # Capillary Tube
+    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 70 * mm, 2)   # Condenser Coil
+    draw_callout_badge(c, fig1b_x + 82 * mm, fig1b_y + 10 * mm, 12)  # Rear Ventilation Grille
         
     # Lower Section: Component Legend & Model Data Box
     leg_y_top = fig1a_y - 6 * mm
