@@ -67,8 +67,8 @@ export const ThreeRefrigeratorViewer: React.FC<ThreeViewerProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || container.parentElement?.clientWidth || window.innerWidth || 800;
+    const height = container.clientHeight || container.parentElement?.clientHeight || window.innerHeight || 600;
 
     // 1. Scene
     const scene = new THREE.Scene();
@@ -77,7 +77,7 @@ export const ThreeRefrigeratorViewer: React.FC<ThreeViewerProps> = ({
     sceneRef.current = scene;
 
     // 2. Camera
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(45, width / (height || 1), 0.1, 100);
     camera.position.set(2.2, 1.4, 2.8);
     cameraRef.current = camera;
 
@@ -230,14 +230,20 @@ export const ThreeRefrigeratorViewer: React.FC<ThreeViewerProps> = ({
     // 8. Resize observer
     const handleResize = () => {
       if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
-      cameraRef.current.aspect = w / h;
+      const w = containerRef.current.clientWidth || containerRef.current.parentElement?.clientWidth || window.innerWidth || 800;
+      const h = containerRef.current.clientHeight || containerRef.current.parentElement?.clientHeight || window.innerHeight || 600;
+      cameraRef.current.aspect = w / (h || 1);
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
     };
 
     window.addEventListener('resize', handleResize);
+    const ro = new ResizeObserver(() => handleResize());
+    ro.observe(container);
+
+    // Initial tick to guarantee proper sizing once CSS paints
+    setTimeout(handleResize, 50);
+    setTimeout(handleResize, 200);
 
     // 9. Animation render loop
     let clock = new THREE.Clock();
@@ -270,6 +276,7 @@ export const ThreeRefrigeratorViewer: React.FC<ThreeViewerProps> = ({
     return () => {
       cancelAnimationFrame(reqIdRef.current);
       window.removeEventListener('resize', handleResize);
+      ro.disconnect();
       dom.removeEventListener('mousedown', handlePointerDown);
       dom.removeEventListener('mouseup', handlePointerUp);
       renderer.dispose();
